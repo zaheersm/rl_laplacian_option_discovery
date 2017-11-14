@@ -19,10 +19,10 @@ def plot_pi(pi, max_row, max_col):
     V = []
 
     for action in vector_pi:
-        U.append(action[0]*0.1)
-        V.append(action[1]*0.1)
+        U.append(action[0])
+        V.append(action[1])
 
-    Q = plt.quiver(Col, Row, U, V, pivot='mid', units='xy')
+    Q = plt.quiver(Col, Row, U, V, pivot='mid', units='xy', scale=3)
 
     plt.xticks(range(max_col))
     plt.yticks(range(max_row))
