@@ -68,7 +68,7 @@ print w
 idx = np.argmin(w)
 iv = v[:, idx]
 print iv
-rlg = rl_glue.RLGlue("environment", "sarsa_agent")
+rlg = rl_glue.RLGlue("environment", "q_agent")
 # Configuring the intrinsic environment
 command = "dim:{},{}".format(max_row, max_col)
 rlg.env_message(command)
@@ -76,8 +76,8 @@ rlg.agent_message(command)
 rlg.env_message("reward_vec:" + pickle.dumps(iv, protocol=0))
 
 # Approximate the value function for 8000 steps
-steps = 100000
-max_steps = 100000
+steps = 10000
+max_steps = 10000
 while steps <= max_steps:
     is_term = rlg.episode(max_steps - steps)
     if is_term is True:
