@@ -32,8 +32,7 @@ class RLGlue(object):
 	self.num_steps = 1;
 
 	last_state = self.environment.start()
-	last_action = self.agent.start(last_state)
-	last_action = 1
+        last_action = self.agent.start(last_state)
 	observation = {"state":last_state, "action":last_action}
 
 	self.last_action = last_action
@@ -99,8 +98,7 @@ class RLGlue(object):
 	result : dict
 	    dictionary with keys {reward,state,isTerminal}
 	"""
-
-	result = self.environment.step(action)
+        result = self.environment.step(action)
 
 	self.total_reward += result['reward']
 
@@ -118,7 +116,7 @@ class RLGlue(object):
 	result : dict
 	    dictionary with keys {reward,state,action,isTerminal}
 	"""
-	result = self.environment.step(self.last_action)
+        result = self.environment.step(self.last_action)
 	self.total_reward += result['reward'];
 	if result['isTerminal'] == True:
 	    self.num_episodes += 1
@@ -128,7 +126,6 @@ class RLGlue(object):
 	    self.num_steps += 1
 	    self.last_action = self.agent.step(result['reward'],result['state'])
 	    result['action'] = self.last_action
-
 	return result
 
     def cleanup(self):

@@ -23,8 +23,8 @@ def print_eigen(e_vals, e_vecs):
 np.set_printoptions(precision=2)
 
 # 10 x 10 grid
-max_row = 3
-max_col = 3
+max_row = 10
+max_col = 10
 
 max_actions = 4
 
