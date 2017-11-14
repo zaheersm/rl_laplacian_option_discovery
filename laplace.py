@@ -1,9 +1,18 @@
+import sys
 import numpy as np
 from numpy import linalg as LA
 import pickle
-
+import rl_glue
 import env
-import intrinsic_env
+
+def pprint_pi(pi, max_row, max_col):
+    action_set = ['R', 'L', 'D', 'U', 'T']
+    count = 0
+    for r in range((max_row)):
+        for c in range((max_col)):
+            sys.stdout.write(action_set[pi[count]] + ' ')
+            count+=1
+        print '\n'
 
 def print_eigen(e_vals, e_vecs):
     for idx in range(len(e_vals)):
@@ -59,8 +68,22 @@ print w
 idx = np.argmin(w)
 iv = v[:, idx]
 print iv
+rlg = rl_glue.RLGlue("environment", "sarsa_agent")
 # Configuring the intrinsic environment
 command = "dim:{},{}".format(max_row, max_col)
-intrinsic_env.env_message(command)
-intrinsic_env.env_message("reward_vec:" + pickle.dumps(iv, protocol=0))
-s = intrinsic_env.env_start()[0]
+rlg.env_message(command)
+rlg.agent_message(command)
+rlg.env_message("reward_vec:" + pickle.dumps(iv, protocol=0))
+
+# Approximate the value function for 8000 steps
+steps = 100000
+max_steps = 100000
+while steps <= max_steps:
+    is_term = rlg.episode(max_steps - steps)
+    if is_term is True:
+        steps = int(rlg.agent_message("steps"))
+    else:
+        break
+rlg.cleanup()
+pi = pickle.loads(rlg.agent_message("policy"))
+pprint_pi(pi, max_row, max_col)
