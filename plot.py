@@ -1,33 +1,23 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import itertools
-'''
-r = 3
-c = 4
-x = np.linspace(0, c, c+1)
-y = np.linspace(0, r, r+1)
 
-pts = itertools.product(x, y)
-plt.scatter(*zip(*pts), marker='o', s=30, color='red')
+max_row = 10
+max_col = 10
+pi = np.zeros(max_row * max_col)
 
-X, Y = np.meshgrid(x, y)
-deg = np.arctan(Y**3 - 3*Y-X)
-QP = plt.quiver(X, Y, np.cos(deg), np.sin(deg))
-plt.grid()
+# check X,Y correspondence with row, col
+Col, Row = np.meshgrid(range(0,max_col,1), range(0,max_row,1))
+print(Row)
+print(Col)
+
+# U: x-component of vector
+# V: y-component of vector
+U = np.ones(max_row * max_col)
+V = np.zeros(max_row * max_col)
+
+Q = plt.quiver(Col, Row, U, V, pivot='mid', units='xy')
+
+plt.xticks(range(max_col))
+plt.yticks(range(max_row))
+plt.gca().invert_yaxis()
 plt.show()
-'''
-
-X, Y = np.mgrid[0:5, 0:5]
-
-U = []
-V = []
-Q = []
-
-for i in range(5):
-
-    t_u = []
-    t_v = []
-    t_q = []
-    for j in range(5):
-        state = np.array( X[i][j], Y[i][j])
-        
