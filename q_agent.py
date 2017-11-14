@@ -38,7 +38,7 @@ class Agent(object):
         self.total_rows, self.total_cols = total_rows, total_cols
         self.epsilon = 0.1
         self.alpha = 0.1
-        self.discount = 0.9
+        self.discount = 1.0
 
     def start(self, state):
         """
@@ -157,7 +157,7 @@ class Agent(object):
         for idx, state in enumerate(self.states_rc):
             row, col = state[0], state[1]
             q = self.Q[row][col]
-            ca = np.random.choice(np.flatnonzero(q == q.max()))
+            ca = np.flatnonzero(q == q.max())[-1] # take last max to break ties
             pi[idx] = ca
 
         return pi
