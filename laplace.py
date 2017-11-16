@@ -2,10 +2,9 @@ import sys
 import numpy as np
 from numpy import linalg as LA
 import pickle
-import rl_glue
 import env
+import options
 import plot_utils
-
 # shouldn't use this anymore
 def pprint_pi(pi, max_row, max_col):
     action_set = ['R', 'L', 'D', 'U', 'T']
@@ -70,23 +69,7 @@ print w
 idx = np.argmin(w)
 iv = v[:, idx]
 print iv
-rlg = rl_glue.RLGlue("environment", "q_agent")
-# Configuring the intrinsic environment
-command = "dim:{},{}".format(max_row, max_col)
-rlg.env_message(command)
-rlg.agent_message(command)
-rlg.env_message("reward_vec:" + pickle.dumps(iv, protocol=0))
 
-# Approximate the value function for 8000 steps
-steps = 100000
-max_steps = 100000
-while steps <= max_steps:
-    is_term = rlg.episode(max_steps - steps)
-    if is_term is True:
-        steps = int(rlg.agent_message("steps"))
-    else:
-        break
-rlg.cleanup()
-pi = pickle.loads(rlg.agent_message("policy"))
-pprint_pi(pi, max_row, max_col)
-plot_utils.plot_pi(pi, max_row, max_col)
+opt = options.Option(iv, max_row, max_col, alpha=0.1, epsilon=0.1, discount=1)
+opt.learn(10000)
+opt.display_policy()
