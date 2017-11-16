@@ -4,7 +4,9 @@ from numpy import linalg as LA
 import pickle
 import rl_glue
 import env
+import plot_utils
 
+# shouldn't use this anymore
 def pprint_pi(pi, max_row, max_col):
     action_set = ['R', 'L', 'D', 'U', 'T']
     count = 0
@@ -76,8 +78,8 @@ rlg.agent_message(command)
 rlg.env_message("reward_vec:" + pickle.dumps(iv, protocol=0))
 
 # Approximate the value function for 8000 steps
-steps = 10000
-max_steps = 10000
+steps = 100000
+max_steps = 100000
 while steps <= max_steps:
     is_term = rlg.episode(max_steps - steps)
     if is_term is True:
@@ -87,3 +89,4 @@ while steps <= max_steps:
 rlg.cleanup()
 pi = pickle.loads(rlg.agent_message("policy"))
 pprint_pi(pi, max_row, max_col)
+plot_utils.plot_pi(pi, max_row, max_col)
