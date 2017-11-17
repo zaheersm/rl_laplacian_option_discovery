@@ -28,3 +28,19 @@ def plot_pi(pi, max_row, max_col):
     plt.yticks(range(max_row))
     plt.gca().invert_yaxis() # enable row,col indexing
     plt.show()
+
+    
+def pprint_pi(pi, max_row, max_col):
+    action_set = ['R', 'L', 'D', 'U', 'T']
+    count = 0
+    for r in range((max_row)):
+        for c in range((max_col)):
+            sys.stdout.write(action_set[pi[count]] + ' ')
+            count+=1
+        print '\n'
+
+def print_eigen(e_vals, e_vecs):
+    for idx in range(len(e_vals)):
+        print 'Eigen Value: ', e_vals[idx]
+        print 'Eigen Vector: \n', e_vecs[idx]
+        print '-'*20

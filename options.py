@@ -27,7 +27,7 @@ class Option(object):
         self.max_col = max_col
         self.pi = None
 
-    def learn(self, steps=10000):
+    def learn(self, steps=100000):
         # Returns the policy
         while steps >= 0:
             is_term = self.glue.episode(steps)
@@ -40,7 +40,7 @@ class Option(object):
         self.pi = pickle.loads(self.glue.agent_message("policy"))
         return self.pi
 
-    def get_policy(self, steps=10000):
+    def get_policy(self, steps=100000):
         if self.pi is None:
             self.pi = self.learn(steps)
         return self.pi
