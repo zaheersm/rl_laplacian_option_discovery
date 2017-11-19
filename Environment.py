@@ -5,9 +5,9 @@ import pickle
 # Possible default actions in tabular environment
 default_action_set = [(0, 1), (0, -1), (1, 0), (-1, 0)] # R, L, D, U
 
+TERMINATE_ACTION = (0,0)
 
-# Need to change to abstract class to handle internal / external environment
-# Currently internal env (with random start state, and terminate action)
+
 class GridEnvironment(object):
 
     def __init__(self, max_row, max_col,
@@ -24,8 +24,10 @@ class GridEnvironment(object):
         self.max_actions = len(self.action_set) # can increase
 
         if reward_vector is None:
-            # Reward is 0.0 everywhere
+            # Reward is 0.0 everywhere, and 1.0 in goal state
             self.reward_vector = np.zeros((len(self.states_rc))) * 0.0
+            goal_idx = self.states_rc.index(goal_state)
+            self.reward_vector[goal_idx] = 1.0
         else:
             self.reward_vector = reward_vector
 
@@ -44,7 +46,7 @@ class GridEnvironment(object):
             print "current_state", self.current_state
 
         action = self.action_set[action]
-        if action == (-1, -1):
+        if action == TERMINATE_ACTION:
             self.current_state = None
             result = {"reward": 0, "state": None, "isTerminal": True}
             return result
@@ -73,7 +75,7 @@ class GridEnvironment(object):
             self.current_state = np.asarray([int(in_message.split(":")[1])])
 
         elif in_message.startswith("set terminate_action"):
-            self.action_set.append((-1,-1))
+            self.action_set.append(TERMINATE_ACTION)
             self.max_actions = len(self.action_set)
 
         elif in_message.startswith("set no_goal"):
@@ -88,7 +90,10 @@ class GridEnvironment(object):
             self.states_rc = states_rc
 
         elif in_message.startswith("set eigen_purpose"):
-            self.reward_vector = pickle.loads(in_message.split(":")[1])
+            # TODO: pickle fails for eigenvectors which has 1e-10 format
+            # self.reward_vector = pickle.loads(in_message.split(":")[1])
+            # handling manually
+            self.reward_vector = pickle.loads(in_message[18:])
 
         elif in_message.startswith("get max_row"):
             return self.max_row
@@ -101,5 +106,5 @@ class GridEnvironment(object):
         elif in_message.startswith("get max_actions"):
             return self.max_actions
         else:
-            print("Invalid env message: "+in_message)
+            print("Invalid env message: " + in_message)
             exit()

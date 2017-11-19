@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 def plot_pi(pi, max_row, max_col):
 
     # Here we modify Terminate (0,0) to indicate termination with a dot
-    # Note these actions denotes direction of (x,y) and not (row,col)
+    # Note these actions denotes direction of (x,y) vector arrow and not (row,col)
     # Right, Left, Down, Up, Terminate
     action_set = [(1,0), (-1,0), (0,-1), (0,1), (0, 0)]
     vector_pi = [action_set[i] for i in pi]

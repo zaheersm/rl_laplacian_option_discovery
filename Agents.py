@@ -4,6 +4,8 @@ import pickle
 # Possible default actions in tabular environment
 default_action_set = [(0, 1), (0, -1), (1, 0), (-1, 0)] # R, L, D, U
 
+TERMINATE_ACTION = (0,0)
+
 class QAgent(object):
 
     def __init__(self, max_row, max_col):
@@ -120,27 +122,33 @@ class QAgent(object):
             return pickle.dumps(np.max(self.Q, axis=1), protocol=0)
 
         elif in_message.startswith("set terminate_action"):
-            self.action_set.append((-1,-1))
+            self.action_set.append(TERMINATE_ACTION)
             self.max_actions = len(self.action_set)
             self.Q = np.zeros((self.max_row, self.max_col, self.max_actions)) # hacky way..
 
         elif in_message == ("get steps"):
             return str(self.steps)
+
         elif in_message.startswith("set alpha"):
             self.alpha = float(in_message.split(":")[1])
+
         elif in_message.startswith("set epsilon"):
             self.epsilon = float(in_message.split(":")[1])
+
         elif in_message.startswith("set discount"):
             self.discount = float(in_message.split(":")[1])
+
         elif in_message.startswith("set dim"):
             dims = in_message.split(":")[1].split(",")
             max_rows, max_cols = int(dims[0]), int(dims[1])
             self.__init__(max_rows, max_cols)
+
         elif in_message.startswith("get policy"):
             pi = self._policy()
             return pickle.dumps(pi, protocol=0)
+            
         else:
-            print("Invalid agent message: "+in_message)
+            print("Invalid agent message: " + in_message)
             exit()
 
     def _policy(self):

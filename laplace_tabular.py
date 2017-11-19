@@ -26,11 +26,28 @@ external_agent = getattr(Agents, agent_name)(max_row, max_col)
 
 internal_env = copy.copy(external_env)
 internal_agent = copy.copy(external_agent)
+
+
 opt = options.Options(internal_env, internal_agent, alpha=0.1, epsilon=0.1, discount=1.0)
 
 
 ###### DEBUG: learn one option
-# add options incrementally to actions set
+opt.learn_eigenoption(100000)
+
+# display newest learned option
+opt.display_eigenoption()
+
+
+opt.learn_eigenoption(100000)
+
+# display newest learned option
+opt.display_eigenoption()
+
+opt.learn_eigenoption(100000)
+
+# display newest learned option
+opt.display_eigenoption()
+
 opt.learn_eigenoption(100000)
 
 # display newest learned option
@@ -39,6 +56,21 @@ opt.display_eigenoption()
 exit()
 ##############################
 
-#rlglue = RLGlue.RLGlue(external_env, external_agent)
+# glue = RLGlue.RLGlue(external_env, external_agent)
+
+# # set alpha
+# command = "set alpha:{}".format(alpha)
+# glue.agent_message(command)
+
+# # set epsilon
+# command = "set epsilon:{}".format(epsilon)
+# glue.agent_message(command)
+
+# # set discount
+# command = "set discount:{}".format(discount)
+# glue.agent_message(command)
 
 
+
+
+# TODO: add options incrementally to actions set

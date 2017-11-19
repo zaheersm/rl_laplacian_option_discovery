@@ -100,12 +100,17 @@ class Options(object):
         self.eigenvectors = np.asarray(map(v.__getitem__, indexes))
 
         # DEBUG: check the most interesting eigen vector (smallest eigenvalue)
-        print(self.eigenvalues.shape)
-        print(self.eigenvectors.shape)
-        idx = np.argmin(self.eigenvalues)
+        # print(self.eigenvalues.shape)
+        # print(self.eigenvectors.shape)
+        # idx = np.argmin(self.eigenvalues)
 
-        print idx
-        print self.eigenvectors[idx,:]
+        # print idx
+        # print self.eigenvectors[0,:]
+        # print self.eigenvectors[1,:] # pickle fails
+        # print self.eigenvectors[2,:] # pickle fails
+        # print self.eigenvectors[3,:]
+
+
 
     def learn_eigenoption(self, steps=100000):
 
@@ -117,6 +122,8 @@ class Options(object):
 
         # set reward vector
         command = "set eigen_purpose:" + pickle.dumps(self.eigenvectors[new_option_idx], protocol=0)
+        #print(command[:18])
+
         self.glue.env_message(command)
 
         # Learn policy
