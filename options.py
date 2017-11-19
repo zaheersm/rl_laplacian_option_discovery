@@ -8,17 +8,17 @@ import plot_utils
 
 class Options(object):
 
-    def __init__(self, internal_env, alpha=0.1, epsilon=0.1, discount=0.1):
+    def __init__(self, internal_env, internal_agent, alpha=0.1, epsilon=0.1, discount=0.1):
 
-        # currently internal_env is just a copy of external_env
-        self.glue = RLGlue.RLGlue(internal_env, Agents.QAgent())
+        # currently internal_env/agent is just a copy of external_env/agent
+        self.glue = RLGlue.RLGlue(internal_env, internal_agent)
 
         # set "no goal"
         self.glue.env_message("set no_goal")
 
-        # TODO
-        # add 'terminate' action, currently agent already has terminate action
-        #self.glue.agent_message("add_terminate_action")
+        # add 'terminate' action
+        self.glue.env_message("set terminate_action")
+        self.glue.agent_message("set terminate_action")
 
         # set alpha
         command = "set alpha:{}".format(alpha)
@@ -39,13 +39,6 @@ class Options(object):
         # compute eigen
         self.compute_eigen()
 
-        # Setting the eigen purpose
-        # command = "eigen_purpose:" + pickle.dumps(eigen_purpose, protocol=0)
-        # self.glue.env_message(command)
-
-        # self.max_row = max_row
-        # self.max_col = max_col
-        # self.pi = None
 
     def compute_eigen(self):
 
@@ -53,7 +46,9 @@ class Options(object):
         # Send env_message to get all accessible states
         self.max_row = self.glue.env_message("get max_row")
         self.max_col = self.glue.env_message("get max_col")
-        max_actions = 4 # self.glue.env_message("get max_actions")
+
+        # Need to exclude Terminate Action
+        default_max_actions = self.glue.env_message("get default_max_actions") # 4
 
         # get all possible (r,c) states in env
         states_rc = []
@@ -66,7 +61,7 @@ class Options(object):
         # Compute adjacency matrix (take all possible actions from every state)
         adjacency = np.zeros((total_states, total_states), dtype = np.int)
         for state in range(total_states):
-            for a in range(max_actions):
+            for a in range(default_max_actions):
 
                 # Take a specified action from a given start state to get next state
                 command = "set start_state:{}".format(state)

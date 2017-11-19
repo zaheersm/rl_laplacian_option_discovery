@@ -1,10 +1,12 @@
 import numpy as np
 import pickle
 
+# Possible default actions in tabular environment
+default_action_set = [(0, 1), (0, -1), (1, 0), (-1, 0)] # R, L, D, U
 
 class QAgent(object):
 
-    def __init__(self, max_rows=10, max_cols=10):
+    def __init__(self, max_row, max_col):
         """
         Q[row][col][a] would represent the action value for
         state [row, col] and the action 'action_set[a]'
@@ -13,19 +15,18 @@ class QAgent(object):
         can be converted into a tuple representation by indexing
         action_set using the integer
         """
-        # action_set = [right, left, down, up, terminate]
-        self.action_set = [(0, 1), (0, -1), (1, 0), (-1, 0), (-1, -1)]
-        self.max_actions = len(self.action_set)
+        self.action_set = default_action_set
+        self.default_max_actions = len(self.action_set) # will stay fixed
+        self.max_actions = len(self.action_set) # can increase
 
-        self.Q = np.zeros((max_rows, max_cols, self.max_actions))
-        self.states_rc = [(r, c) for r in range(max_rows)
-                          for c in range(max_cols)]
+        self.Q = np.zeros((max_row, max_col, self.max_actions))
+        self.states_rc = [(r, c) for r in range(max_row)
+                          for c in range(max_col)]
 
         self.last_state, self.last_action = -1, -1
         self.steps = 0
-        self.max_rows, self.max_cols = max_rows, max_cols
-        self.epsilon, self.alpha, self.discount = 0.1, 0.1, 1.0
-        self.max_rows, self.max_cols = max_rows, max_cols
+        self.max_row, self.max_col = max_row, max_col
+
 
     def start(self, state):
 
@@ -117,6 +118,12 @@ class QAgent(object):
         """
         if (in_message == 'ValueFunction'):
             return pickle.dumps(np.max(self.Q, axis=1), protocol=0)
+
+        elif in_message.startswith("set terminate_action"):
+            self.action_set.append((-1,-1))
+            self.max_actions = len(self.action_set)
+            self.Q = np.zeros((self.max_row, self.max_col, self.max_actions)) # hacky way..
+
         elif in_message == ("get steps"):
             return str(self.steps)
         elif in_message.startswith("set alpha"):

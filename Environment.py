@@ -3,7 +3,7 @@ import pickle
 
 
 # Possible default actions in tabular environment
-action_set = [(0, 1), (0, -1), (1, 0), (-1, 0), (-1, -1)] # R, L, D, U
+default_action_set = [(0, 1), (0, -1), (1, 0), (-1, 0)] # R, L, D, U
 
 
 # Need to change to abstract class to handle internal / external environment
@@ -15,14 +15,13 @@ class Environment(object):
 
         states_rc = [(r, c) for r in range(max_row) for c in range(max_col)]
         self.states_rc = states_rc # all possible states (r,c)
-
         self.max_row, self.max_col = max_row, max_col
 
         self.goal_state = goal_state
 
-        # Need to figure out a termination technique
-        self.action_set = action_set
-        self.max_actions = len(self.action_set)
+        self.action_set = default_action_set
+        self.default_max_actions = len(self.action_set) # will stay fixed
+        self.max_actions = len(self.action_set) # can increase
 
         if reward_vector is None:
             # Reward is 0.0 everywhere
@@ -73,6 +72,10 @@ class Environment(object):
         if in_message.startswith("set start_state"):
             self.current_state = np.asarray([int(in_message.split(":")[1])])
 
+        elif in_message.startswith("set terminate_action"):
+            self.action_set.append((-1,-1))
+            self.max_actions = len(self.action_set)
+
         elif in_message.startswith("set no_goal"):
             self.goal_state = (-1, -1)
 
@@ -93,6 +96,8 @@ class Environment(object):
         elif in_message.startswith("get max_col"):
             return self.max_col
 
+        elif in_message.startswith("get default_max_actions"):
+            return self.default_max_actions
         elif in_message.startswith("get max_actions"):
             return self.max_actions
         else:
