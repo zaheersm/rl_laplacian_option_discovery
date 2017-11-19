@@ -82,6 +82,16 @@ class RLGlue(object):
         self.environment.cleanup()
         self.agent.cleanup()
 
+        self.total_reward = 0.0
+        self.num_steps = 0
+        self.num_episodes = 0
+
+    def get_num_steps(self):
+        return self.num_steps
+
+    def get_num_episodes(self):
+        return self.num_episodes
+
     def agent_message(self, message):
         """
         Arguments

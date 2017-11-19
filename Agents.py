@@ -121,6 +121,10 @@ class QAgent(object):
         if (in_message == 'ValueFunction'):
             return pickle.dumps(np.max(self.Q, axis=1), protocol=0)
 
+        elif in_message.startswith("set eigen_option"):
+            eigenoption = pickle.loads(in_message.split(":")[1])
+            # TODO: add to action_set
+
         elif in_message.startswith("set terminate_action"):
             self.action_set.append(TERMINATE_ACTION)
             self.max_actions = len(self.action_set)
@@ -146,7 +150,7 @@ class QAgent(object):
         elif in_message.startswith("get policy"):
             pi = self._policy()
             return pickle.dumps(pi, protocol=0)
-            
+
         else:
             print("Invalid agent message: " + in_message)
             exit()
@@ -159,7 +163,7 @@ class QAgent(object):
             q = self.Q[row][col]
             # Taking last max to break ties inorder to prefer Terminate action
             ca = np.flatnonzero(q == q.max())[-1]
-            pi[idx] = ca
+            pi[idx] = ca # each state will have related optimal action idx
 
         return pi
 

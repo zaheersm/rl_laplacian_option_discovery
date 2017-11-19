@@ -55,16 +55,27 @@ class GridEnvironment(object):
         s = self.states_rc[s]
         nr = min(self.max_row - 1, max(0, s[0] + action[0]))
         nc = min(self.max_col - 1, max(0, s[1] + action[1]))
-        ns = (nr, nc)
+        ns = (nr, nc) 
+
         # Going back to the integer representation
         s = self.states_rc.index(s)
-        ns = self.states_rc.index(ns)
+        ns = self.states_rc.index(ns) # next state
 
         reward = self.reward_vector[ns] - self.reward_vector[s]
         self.current_state[0] = ns
-        result = {"reward": reward, "state": self.current_state,
-                  "isTerminal": False}
-        return result
+
+        
+        if self.goal_state != (-1,-1) and \
+            self.states_rc.index(self.goal_state) == self.current_state[0]:
+            
+            self.current_state = None
+            result = {"reward": reward, "state": None, "isTerminal": True}
+            return result
+
+        else:
+            result = {"reward": reward, "state": self.current_state,
+                      "isTerminal": False}
+            return result
 
     def cleanup(self):
 
