@@ -1,6 +1,8 @@
+import numpy as np
+
 class RLGlue(object):
 
-    def __init__(self, env_name, agent_name):
+    def __init__(self, env_instance, agent_instance):
         """
         Arguments
         ---------
@@ -9,8 +11,8 @@ class RLGlue(object):
         agent_name : string
             filename of the agent module
         """
-        self.environment = Environment()
-        self.agent = QAgent()
+        self.environment = env_instance
+        self.agent = agent_instance
         self.total_reward = 0.0
         self.num_steps = 0
         self.num_episodes = 0
@@ -53,6 +55,27 @@ class RLGlue(object):
                                                result['state'])
             result['action'] = self.last_action
         return result
+
+    def episode(self, max_steps_this_episode):
+        """
+        Arguments
+        ---------
+        max_steps_this_episode : int
+
+        Returns
+        -------
+        is_terminal : bool
+        """
+        is_terminal = False
+
+        self.start()
+        while (not is_terminal) and \
+                ((max_steps_this_episode == 0) or
+                 (self.num_steps < max_steps_this_episode)):
+            rl_step_result = self.step()
+            is_terminal = rl_step_result['isTerminal']
+
+        return is_terminal
 
     def cleanup(self):
 
@@ -104,23 +127,4 @@ class RLGlue(object):
 
         return the_env_response
 
-    def episode(self, max_steps_this_episode):
-        """
-        Arguments
-        ---------
-        max_steps_this_episode : int
 
-        Returns
-        -------
-        is_terminal : bool
-        """
-        is_terminal = False
-
-        self.start()
-        while (not is_terminal) and \
-                ((max_steps_this_episode == 0) or
-                 (self.num_steps < max_steps_this_episode)):
-            rl_step_result = self.step()
-            is_terminal = rl_step_result['isTerminal']
-
-        return is_terminal

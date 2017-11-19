@@ -1,7 +1,9 @@
 import numpy as np
+import pickle
+
 
 # Possible default actions in tabular environment
-action_set = [(0, 1), (0, -1), (1, 0), (-1, 0)] # R, L, D, U, T
+action_set = [(0, 1), (0, -1), (1, 0), (-1, 0), (-1, -1)] # R, L, D, U
 
 
 # Need to change to abstract class to handle internal / external environment
@@ -20,13 +22,15 @@ class Environment(object):
 
         # Need to figure out a termination technique
         self.action_set = action_set
-        self.MAX_ACTION = len(self.action_set)
+        self.max_actions = len(self.action_set)
 
         if reward_vector is None:
-            # Reward is -1.0 everywhere
-            self.reward_vector = np.zeros((len(self.states_rc))) * -1
+            # Reward is 0.0 everywhere
+            self.reward_vector = np.zeros((len(self.states_rc))) * 0.0
         else:
             self.reward_vector = reward_vector
+
+        self.current_state = None
 
     def start(self):
         start_state = np.random.randint(len(self.states_rc))
@@ -35,7 +39,7 @@ class Environment(object):
         return np.copy(self.current_state)
 
     def step(self, action):
-        if not action < self.MAX_ACTION:
+        if not action < self.max_actions:
             print "Invalid action taken!!"
             print "action: ", action
             print "current_state", self.current_state
@@ -54,29 +58,43 @@ class Environment(object):
         # Going back to the integer representation
         s = self.states_rc.index(s)
         ns = self.states_rc.index(ns)
+
         reward = self.reward_vector[ns] - self.reward_vector[s]
         self.current_state[0] = ns
         result = {"reward": reward, "state": self.current_state,
                   "isTerminal": False}
-
         return result
 
     def cleanup(self):
+
         return
 
     def message(self, in_message):
-        # Helper messages to help in adjacency matrix
-        if in_message.startswith("start_state"):
+        if in_message.startswith("set start_state"):
             self.current_state = np.asarray([int(in_message.split(":")[1])])
-        elif in_message.startswith("no_goal"):
+
+        elif in_message.startswith("set no_goal"):
             self.goal_state = (-1, -1)
-        elif in_message.startswith("dim"):
+
+        elif in_message.startswith("set dim"):
             dims = in_message.split(":")[1].split(",")
             max_row, max_col = int(dims[0]), int(dims[1])
             states_rc = [(r, c) for r in range(max_row)
                          for c in range(max_col)]
             self.max_row, self.max_col = max_row, max_col
             self.states_rc = states_rc
-        elif in_message.startswith("eigen_purpose"):
+
+        elif in_message.startswith("set eigen_purpose"):
             self.reward_vector = pickle.loads(in_message.split(":")[1])
-        return ""
+
+        elif in_message.startswith("get max_row"):
+            return self.max_row
+
+        elif in_message.startswith("get max_col"):
+            return self.max_col
+
+        elif in_message.startswith("get max_actions"):
+            return self.max_actions
+        else:
+            print("Invalid env message: "+in_message)
+            exit()

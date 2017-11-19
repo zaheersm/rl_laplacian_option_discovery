@@ -1,3 +1,5 @@
+import numpy as np
+import pickle
 
 
 class QAgent(object):
@@ -13,9 +15,9 @@ class QAgent(object):
         """
         # action_set = [right, left, down, up, terminate]
         self.action_set = [(0, 1), (0, -1), (1, 0), (-1, 0), (-1, -1)]
-        self.MAX_ACTIONS = len(self.action_set)
+        self.max_actions = len(self.action_set)
 
-        self.Q = np.zeros((max_rows, max_cols, self.MAX_ACTIONS))
+        self.Q = np.zeros((max_rows, max_cols, self.max_actions))
         self.states_rc = [(r, c) for r in range(max_rows)
                           for c in range(max_cols)]
 
@@ -33,7 +35,7 @@ class QAgent(object):
         row, col = self.states_rc[state[0]]
 
         if np.random.uniform() < self.epsilon:
-            ca = np.random.randint(self.MAX_ACTIONS)
+            ca = np.random.randint(self.max_actions)
         else:
             q = self.Q[row][col]
             # Breaking ties randomly
@@ -59,7 +61,7 @@ class QAgent(object):
         # ccol: col of current state
         ccol = current_state[1]
         if np.random.uniform() < self.epsilon:
-            ca = np.random.randint(self.MAX_ACTIONS)
+            ca = np.random.randint(self.max_actions)
         else:
             q = self.Q[crow][ccol]
             # Breaking ties randomly
@@ -115,26 +117,26 @@ class QAgent(object):
         """
         if (in_message == 'ValueFunction'):
             return pickle.dumps(np.max(self.Q, axis=1), protocol=0)
-        elif in_message == ("steps"):
+        elif in_message == ("get steps"):
             return str(self.steps)
-        elif in_message.startswith("alpha"):
+        elif in_message.startswith("set alpha"):
             self.alpha = float(in_message.split(":")[1])
-        elif in_message.startswith("epsilon"):
+        elif in_message.startswith("set epsilon"):
             self.epsilon = float(in_message.split(":")[1])
-        elif in_message.startswith("discount"):
+        elif in_message.startswith("set discount"):
             self.discount = float(in_message.split(":")[1])
-        elif in_message.startswith("dim"):
+        elif in_message.startswith("set dim"):
             dims = in_message.split(":")[1].split(",")
             max_rows, max_cols = int(dims[0]), int(dims[1])
             self.__init__(max_rows, max_cols)
-        elif in_message.startswith("policy"):
+        elif in_message.startswith("get policy"):
             pi = self._policy()
             return pickle.dumps(pi, protocol=0)
         else:
-            return "I don't know what to return!!"
+            print("Invalid agent message: "+in_message)
+            exit()
 
     def _policy(self):
-
         pi = np.zeros((len(self.states_rc,)), dtype=np.int)
 
         for idx, state in enumerate(self.states_rc):
