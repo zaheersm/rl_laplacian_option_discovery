@@ -8,7 +8,7 @@ default_action_set = [(0, 1), (0, -1), (1, 0), (-1, 0)] # R, L, D, U
 
 # Need to change to abstract class to handle internal / external environment
 # Currently internal env (with random start state, and terminate action)
-class Environment(object):
+class GridEnvironment(object):
 
     def __init__(self, max_row, max_col,
                  goal_state, obstacle_vector = None, reward_vector = None):

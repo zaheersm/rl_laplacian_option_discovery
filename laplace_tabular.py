@@ -17,13 +17,12 @@ max_row = 10
 max_col = 10
 obstacles = [] # TODO: handle obstacles
 
-# Specify name of external env and agent
-env_name = "Environment"
+# Specify name of env and agent
+env_name = "GridEnvironment"
 agent_name = "QAgent" 
 
-# getattr(Environment, 'Environment')(@@@) # call by string
-external_env = Environment.Environment(max_row, max_col, (0,9))
-external_agent = Agents.QAgent(max_row, max_col)
+external_env = getattr(Environment, env_name)(max_row, max_col, (0,9))
+external_agent = getattr(Agents, agent_name)(max_row, max_col)
 
 internal_env = copy.copy(external_env)
 internal_agent = copy.copy(external_agent)
