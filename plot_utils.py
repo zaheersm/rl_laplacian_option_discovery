@@ -29,10 +29,10 @@ def plot_pi(pi, max_row, max_col, display=True, savename=''):
     plt.yticks(range(max_row))
     plt.gca().invert_yaxis() # enable row,col indexing
 
+    if savename != '':
+        plt.savefig(savename)
     if display:
         plt.show()
-    else:
-        plt.savefig(savename)
 
     
 def pprint_pi(pi, max_row=10, max_col=10):
