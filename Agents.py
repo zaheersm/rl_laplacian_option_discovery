@@ -17,7 +17,7 @@ class QAgent(object):
         can be converted into a tuple representation by indexing
         action_set using the integer
         """
-        self.action_set = default_action_set
+        self.action_set = default_action_set[:]
         self.default_max_actions = len(self.action_set) # will stay fixed
         self.max_actions = len(self.action_set) # can increase
 
@@ -126,11 +126,16 @@ class QAgent(object):
 
         elif in_message.startswith("set eigen_option"):
             eigenoption = pickle.loads(in_message.split(":")[1])
+            print(eigenoption)
+            exit()
             eigenoption_actions = np.asarray([default_action_set[i] for i in eigenoption])
 
             self.action_set.append(eigenoption_actions)
             self.max_actions = len(self.action_set)
             self.Q = np.zeros((self.max_row, self.max_col, self.max_actions))
+
+            print(self.max_actions)
+            exit()
 
         elif in_message.startswith("set terminate_action"):
             self.action_set.append(TERMINATE_ACTION)

@@ -73,8 +73,8 @@ eigenoption0 = opt.learn_next_eigenoption(100000)
 opt.display_eigenoption(display=False, savename='option0.png', idx=0)
 
 # TODO: add options incrementally to actions set
-# print("add option in agent")
-# glue.agent_message("set eigen_option:" + pickle.dumps(eigenoption0, protocol=0))
+print("add option in agent")
+glue.agent_message("set eigen_option:" + pickle.dumps(eigenoption0, protocol=0))
 
 
 

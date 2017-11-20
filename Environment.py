@@ -19,7 +19,7 @@ class GridEnvironment(object):
 
         self.goal_state = goal_state
 
-        self.action_set = default_action_set
+        self.action_set = default_action_set[:]
         self.default_max_actions = len(self.action_set) # will stay fixed
         self.max_actions = len(self.action_set) # can increase
 
@@ -126,7 +126,7 @@ class GridEnvironment(object):
 
         elif in_message.startswith("get default_max_actions"):
             return self.default_max_actions
-            
+
         elif in_message.startswith("get max_actions"):
             return self.max_actions
         else:
