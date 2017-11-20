@@ -1,8 +1,8 @@
 import numpy as np
 import pickle
-import RLGlue
-import Environment
-import Agents
+import rlglue
+import environment
+import agents
 import plot_utils
 
 
@@ -11,7 +11,7 @@ class Options(object):
     def __init__(self, internal_env, internal_agent, alpha=0.1, epsilon=0.1, discount=0.1):
 
         # currently internal_env/agent is just a copy of external_env/agent
-        self.glue = RLGlue.RLGlue(internal_env, internal_agent)
+        self.glue = rlglue.RLGlue(internal_env, internal_agent)
 
         # set "no goal"
         self.glue.env_message("set no_goal")
@@ -89,26 +89,10 @@ class Options(object):
 
         # sort in order of increasing eigenvalue
         # self.eigenoptions will be computed lazily
-
-        # dunno why zip doesn't work for 8x8 grid and larger
-        # self.eigenvalues, self.eigenvectors = zip(*sorted(zip(w,v)))
-
-        # alternative sort method
         indexes = range(len(w))
         indexes.sort(key=w.__getitem__)
         self.eigenvalues = np.asarray(map(w.__getitem__, indexes))
         self.eigenvectors = np.asarray(map(v.__getitem__, indexes))
-
-        # DEBUG: check the most interesting eigen vector (smallest eigenvalue)
-        # print(self.eigenvalues.shape)
-        # print(self.eigenvectors.shape)
-        # idx = np.argmin(self.eigenvalues)
-
-        # print idx
-        # print self.eigenvectors[0,:]
-        # print self.eigenvectors[1,:] # pickle fails
-        # print self.eigenvectors[2,:] # pickle fails
-        # print self.eigenvectors[3,:]
 
 
 
@@ -149,13 +133,6 @@ class Options(object):
             print "The eigenoption has not been learnt for this option yet"
             return
         plot_utils.plot_pi(self.eigenoptions[idx], self.max_row, self.max_col, display, savename)
-
-    def save_eigenoption(self, idx = -1):
-        # default return latest learned eigenoption
-        if len(self.eigenoptions) < 1 or idx not in range(-1, len(self.eigenoptions)):
-            print "The eigenoption has not been learnt for this option yet"
-            return
-        plot_utils.save_plot_pi(self.eigenoptions[idx], self.max_row, self.max_col)
 
 
 

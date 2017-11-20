@@ -135,7 +135,7 @@ class QAgent(object):
         elif in_message.startswith("set terminate_action"):
             self.action_set.append(TERMINATE_ACTION)
             self.max_actions = len(self.action_set)
-            self.Q = np.zeros((self.max_row, self.max_col, self.max_actions)) # hacky way..
+            self.Q = np.zeros((self.max_row, self.max_col, self.max_actions))
 
         elif in_message == ("get steps"):
             return str(self.steps)
