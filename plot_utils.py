@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+import sys
 
 def plot_pi(pi, max_row, max_col, display=True, savename=''):
 
@@ -34,7 +35,7 @@ def plot_pi(pi, max_row, max_col, display=True, savename=''):
         plt.savefig(savename)
 
     
-def pprint_pi(pi, max_row, max_col):
+def pprint_pi(pi, max_row=10, max_col=10):
     action_set = ['R', 'L', 'D', 'U', 'T']
     count = 0
     for r in range((max_row)):
@@ -43,8 +44,15 @@ def pprint_pi(pi, max_row, max_col):
             count+=1
         print '\n'
 
-def print_eigen(e_vals, e_vecs):
-    for idx in range(len(e_vals)):
-        print 'Eigen Value: ', e_vals[idx]
-        print 'Eigen Vector: \n', e_vecs[idx]
-        print '-'*20
+def print_eigen(v, max_row=10, max_col=10):
+    print
+    count = 0
+    for r in range(max_row):
+        for c in range(max_col):
+            if v[count] < 0:
+                val = '{:3.2f}'.format(v[count])
+            else:
+                val = ' {:3.2f}'.format(v[count])
+            sys.stdout.write(str(val) + ' ')
+            count+=1
+        print

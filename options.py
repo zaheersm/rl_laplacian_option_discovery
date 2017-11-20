@@ -107,7 +107,7 @@ class Options(object):
         # set reward vector
         command = "set eigen_purpose:" + pickle.dumps(self.eigenvectors[new_option_idx], protocol=0)
         self.glue.env_message(command)
-
+        plot_utils.print_eigen(self.eigenvectors[new_option_idx])
         # Learn policy
         while steps >= 0:
             is_terminal = self.glue.episode(steps)
