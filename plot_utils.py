@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_pi(pi, max_row, max_col):
+def plot_pi(pi, max_row, max_col, display=True, savename=''):
 
     # Here we modify Terminate (0,0) to indicate termination with a dot
     # Note these actions denotes direction of (x,y) vector arrow and not (row,col)
@@ -27,7 +27,11 @@ def plot_pi(pi, max_row, max_col):
     plt.xticks(range(max_col))
     plt.yticks(range(max_row))
     plt.gca().invert_yaxis() # enable row,col indexing
-    plt.show()
+
+    if display:
+        plt.show()
+    else:
+        plt.savefig(savename)
 
     
 def pprint_pi(pi, max_row, max_col):

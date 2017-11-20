@@ -45,29 +45,60 @@ class GridEnvironment(object):
             print "action: ", action
             print "current_state", self.current_state
 
-        action = self.action_set[action]
-        if action == TERMINATE_ACTION:
-            self.current_state = None
-            result = {"reward": 0, "state": None, "isTerminal": True}
-            return result
-        s = self.current_state[0]
-        # Getting the coordinate representation of the state
-        s = self.states_rc[s]
-        nr = min(self.max_row - 1, max(0, s[0] + action[0]))
-        nc = min(self.max_col - 1, max(0, s[1] + action[1]))
-        ns = (nr, nc) 
+        # if action is an option
+        if self.goal_state != (-1,-1) and action >= self.default_max_actions:
+            print('option selected')
+            print(action)
+            option_action_arr = self.action_set[action]
+            print(option_action_arr)
+            s_int = self.current_state[0] # integer representation
+            
+            s = self.states_rc[s_int]
+            print('current state:', s)
 
-        # Going back to the integer representation
-        s = self.states_rc.index(s)
-        ns = self.states_rc.index(ns) # next state
+            current_option_action = option_action_arr[s_int]            
+            while current_option_action != TERMINATE_ACTION:
 
-        reward = self.reward_vector[ns] - self.reward_vector[s]
-        self.current_state[0] = ns
+                nr = min(self.max_row - 1, max(0, s[0] + current_option_action[0]))
+                nc = min(self.max_col - 1, max(0, s[1] + current_option_action[1]))
+                s = (nr, nc)
+                print('current state:', s)
+                s_int = self.states_rc.index(s)
+                current_option_action = option_action_arr[s_int]
+            
+            reward = self.reward_vector[s_int]
+            self.current_state[0] = s_int
+            exit()
+        # if primitive option
+        else:
+            action = self.action_set[action]
 
-        
+            # if terminate action
+            if action == TERMINATE_ACTION:
+                self.current_state = None
+                result = {"reward": 0, "state": None, "isTerminal": True}
+                return result
+
+            else:
+                s = self.current_state[0]
+
+                # Getting the coordinate representation of the state
+                s = self.states_rc[s]
+                nr = min(self.max_row - 1, max(0, s[0] + action[0]))
+                nc = min(self.max_col - 1, max(0, s[1] + action[1]))
+                ns = (nr, nc) 
+
+                # Going back to the integer representation
+                s = self.states_rc.index(s)
+                ns = self.states_rc.index(ns) # next state
+
+                reward = self.reward_vector[ns] - self.reward_vector[s]
+                self.current_state[0] = ns
+
+        # check terminal
         if self.goal_state != (-1,-1) and \
             self.states_rc.index(self.goal_state) == self.current_state[0]:
-            
+
             self.current_state = None
             result = {"reward": reward, "state": None, "isTerminal": True}
             return result
@@ -78,7 +109,8 @@ class GridEnvironment(object):
             return result
 
     def cleanup(self):
-
+        self.current_state = None
+        self.reward_vector = None
         return
 
     def message(self, in_message):
@@ -91,6 +123,21 @@ class GridEnvironment(object):
 
         elif in_message.startswith("set no_goal"):
             self.goal_state = (-1, -1)
+
+        elif in_message.startswith("set eigen_option"):
+            eigenoption = pickle.loads(in_message.split(":")[1])
+            eigenoption_actions = np.asarray([default_action_set[i] for i in eigenoption])
+            self.action_set.append(eigenoption_actions)
+            self.max_actions = len(self.action_set)
+
+            print(self.action_set[0])
+            print(self.action_set[1])
+            print(self.action_set[2])
+            print(self.action_set[3])
+            print(self.action_set[4])
+            #print(self.action_set[5])
+            print(self.max_actions)
+            exit()
 
         elif in_message.startswith("set dim"):
             dims = in_message.split(":")[1].split(",")

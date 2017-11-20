@@ -112,7 +112,7 @@ class Options(object):
 
 
 
-    def learn_eigenoption(self, steps=100000):
+    def learn_next_eigenoption(self, steps=100000):
 
         # learn next option
         new_option_idx = len(self.eigenoptions)
@@ -122,8 +122,6 @@ class Options(object):
 
         # set reward vector
         command = "set eigen_purpose:" + pickle.dumps(self.eigenvectors[new_option_idx], protocol=0)
-        #print(command[:18])
-
         self.glue.env_message(command)
 
         # Learn policy
@@ -134,8 +132,9 @@ class Options(object):
             else:
                 break
             steps -= ep_steps
-        self.glue.cleanup() # Currently does nothing: should reset Q(S,A) and reward vector
+        
         self.eigenoptions.append(pickle.loads(self.glue.agent_message("get policy")))
+        self.glue.cleanup() # reset Q(S,A) and reward vector
 
         # return newly learned policy
         return self.eigenoptions[-1]
@@ -143,10 +142,20 @@ class Options(object):
     def get_eigenoptions(self):        
         return self.eigenoptions
 
-    def display_eigenoption(self, idx = -1):
+    # display eigenoption at the idx
+    def display_eigenoption(self, display = True, savename='', idx = -1):
         # default return latest learned eigenoption
         if len(self.eigenoptions) < 1 or idx not in range(-1, len(self.eigenoptions)):
             print "The eigenoption has not been learnt for this option yet"
             return
-        plot_utils.plot_pi(self.eigenoptions[idx], self.max_row, self.max_col)
+        plot_utils.plot_pi(self.eigenoptions[idx], self.max_row, self.max_col, display, savename)
+
+    def save_eigenoption(self, idx = -1):
+        # default return latest learned eigenoption
+        if len(self.eigenoptions) < 1 or idx not in range(-1, len(self.eigenoptions)):
+            print "The eigenoption has not been learnt for this option yet"
+            return
+        plot_utils.save_plot_pi(self.eigenoptions[idx], self.max_row, self.max_col)
+
+
 

@@ -64,23 +64,27 @@ ave_steps/=float(num_episodes)
 print("Base agent: " + str(ave_steps) + " steps")
 glue.cleanup()
 
-
-exit()
+# exit()
 
 # Compute eigenoptions
 opt = options.Options(internal_env, internal_agent, alpha=alpha, epsilon=epsilon, discount=discount)
 
-
-eigenoption = opt.learn_eigenoption(100000)
+eigenoption0 = opt.learn_next_eigenoption(100000)
 
 # display newest learned option
-#opt.display_eigenoption()
+opt.display_eigenoption(display=False, savename='option0.png', idx=0)
 
 # TODO: add options incrementally to actions set
-#glue.agent_message("set eigen_option:" + pickle.dumps(self.eigenvectors[new_option_idx], protocol=0))
+print("add option")
+glue.agent_message("set eigen_option:" + pickle.dumps(eigenoption0, protocol=0))
+glue.env_message("set eigen_option:" + pickle.dumps(eigenoption0, protocol=0))
 
-
-
-
+for ep in range(num_episodes):
+	# run episode 
+	glue.episode(0)
+	ave_steps += glue.get_num_steps() 
+ave_steps/=float(num_episodes)
+print("Opt+1 agent: " + str(ave_steps) + " steps")
+glue.cleanup()
 
 

@@ -106,11 +106,14 @@ class QAgent(object):
         return
 
     def cleanup(self):
-        """
-        This function is not used
-        """
         # clean up
+
+        self.Q = np.zeros((self.max_row, self.max_col, self.max_actions))
+        self.last_state, self.last_action = -1, -1
+        self.steps = 0
+
         return
+
 
     def message(self, in_message):
         """
@@ -123,7 +126,11 @@ class QAgent(object):
 
         elif in_message.startswith("set eigen_option"):
             eigenoption = pickle.loads(in_message.split(":")[1])
-            # TODO: add to action_set
+            eigenoption_actions = np.asarray([default_action_set[i] for i in eigenoption])
+
+            self.action_set.append(eigenoption_actions)
+            self.max_actions = len(self.action_set)
+            self.Q = np.zeros((self.max_row, self.max_col, self.max_actions))
 
         elif in_message.startswith("set terminate_action"):
             self.action_set.append(TERMINATE_ACTION)
