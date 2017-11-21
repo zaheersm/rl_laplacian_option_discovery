@@ -103,4 +103,4 @@ for num_options in options_range:
     if num_options == 197:
         break
 savename = 'diffusion_time.txt'
-np.savetxt(savename, diffusion_time, fmt='%d')
+np.savetxt(savename, diffusion_time, fmt='%f')
