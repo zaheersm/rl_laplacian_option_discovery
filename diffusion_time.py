@@ -98,6 +98,7 @@ for num_options in options_range:
         sys.stdout.flush()
     out = 'Num Options: {} | Diffusion Time: {}'.format(num_options,
                                                         np.mean(means))
+    print out
     diffusion_time[num_options] = np.mean(means)
     if num_options == 197:
         break
