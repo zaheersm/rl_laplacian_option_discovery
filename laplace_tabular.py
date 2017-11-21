@@ -35,8 +35,8 @@ agent_name = "QAgent"
 
 external_env = getattr(environment, env_name)(max_row, max_col, goal_state)
 external_agent = getattr(agents, agent_name)(max_row, max_col)
-internal_env = copy.copy(external_env)
-internal_agent = copy.copy(external_agent)
+internal_env = copy.deepcopy(external_env)
+internal_agent = copy.deepcopy(external_agent)
 
 
 # Baseline Agent
@@ -54,13 +54,13 @@ glue.agent_message(command)
 command = "set discount:{}".format(discount)
 glue.agent_message(command)
 
-ave_steps = 0
-for ep in range(num_episodes):
-	# run episode 
-	glue.episode(0)
-	ave_steps += glue.get_num_steps() 
-ave_steps/=float(num_episodes)
-print("Base agent: " + str(ave_steps) + " steps")
+# ave_steps = 0
+# for ep in range(num_episodes):
+# 	# run episode 
+# 	glue.episode(0)
+# 	ave_steps += glue.get_num_steps() 
+# ave_steps/=float(num_episodes)
+# print("Base agent: " + str(ave_steps) + " steps")
 glue.cleanup()
 
 
@@ -72,9 +72,16 @@ eigenoption0 = opt.learn_next_eigenoption(100000)
 # display or save newest learned option
 opt.display_eigenoption(display=False, savename='option0.png', idx=0)
 
-# TODO: add options incrementally to actions set
+# # TODO: add options incrementally to actions set
 glue.agent_message("set eigen_option:" + pickle.dumps(eigenoption0, protocol=0))
 
-
+ave_steps = 0
+for ep in range(num_episodes):
+	# run episode 
+	glue.episode(0)
+	ave_steps += glue.get_num_steps() 
+ave_steps/=float(num_episodes)
+print("1 opt agent: " + str(ave_steps) + " steps")
+glue.cleanup()
 
 

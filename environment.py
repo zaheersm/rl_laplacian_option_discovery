@@ -84,7 +84,6 @@ class GridEnvironment(object):
 
     def cleanup(self):
         self.current_state = None
-        self.reward_vector = None
         return
 
     def message(self, in_message):

@@ -18,6 +18,7 @@ class QAgent(object):
         action_set using the integer
         """
         self.action_set = default_action_set[:]
+        self.option_set = []
         self.default_max_actions = len(self.action_set) # will stay fixed
         self.max_actions = len(self.action_set) # can increase
 
@@ -30,30 +31,84 @@ class QAgent(object):
         self.max_row, self.max_col = max_row, max_col
 
 
+        # will indicate the idx of the option the agent is following
+        # -1 if not following option
+        self.following_option = -1 
+
     def start(self, state):
+        print('====agent start====')
 
         # Saving the state as last_state
         self.last_state = state[0]
         # Getting the cartesian form of the states
         row, col = self.states_rc[state[0]]
+        print('start state', (row,col))
 
-        if np.random.uniform() < self.epsilon:
-            ca = np.random.randint(self.max_actions)
-        else:
-            q = self.Q[row][col]
-            # Breaking ties randomly
-            ca = np.random.choice(np.flatnonzero(q == q.max()))
+        # not following option
+        if self.following_option == -1:
 
+            # epsilon greedy
+            if np.random.uniform() < self.epsilon:
+                ca = np.random.randint(self.max_actions)
+            else:
+                q = self.Q[row][col]
+                # Breaking ties randomly
+                ca = np.random.choice(np.flatnonzero(q == q.max()))
+
+            # if chosen action is an option
+            if ca >= self.default_max_actions:
+                self.following_option = ca % self.default_max_actions
+                ca = self.option_set[self.following_option][state[0]]
+
+            # primitive action
+            else:
+                action = self.action_set[ca]
+                self.last_action = ca
+                # Updating steps
+                self.steps = 1
+                return self.last_action
+
+        # following option
+        assert (self.following_option != -1)
+        ca = self.option_set[self.following_option][state[0]]
+
+        # if terminate action
+        while ca == 4: 
+            self.following_option = -1
+
+            # epsilon greedy
+            if np.random.uniform() < self.epsilon:
+                ca = np.random.randint(self.max_actions)
+            else:
+                q = self.Q[row][col]
+                # Breaking ties randomly
+                ca = np.random.choice(np.flatnonzero(q == q.max()))
+
+            # if chosen action is an option
+            if ca >= self.default_max_actions:
+                self.following_option = ca % self.default_max_actions
+                ca = self.option_set[self.following_option][state[0]]
+
+            # primitive action
+            else:
+                action = self.action_set[ca]
+                self.last_action = ca
+                # Updating steps
+                self.steps = 1
+                return self.last_action
+
+        # not terminate action
         action = self.action_set[ca]
+
         self.last_action = ca
-
-        # Updating steps
         self.steps = 1
-
-        # Returning integer representation of the action
         return self.last_action
+                
 
     def step(self, reward, state):
+        print('====agent step====')
+        
+
         """
         Arguments: reward: floting point, state: integer
         Returns: action: list with two integers [row, col]
@@ -63,38 +118,100 @@ class QAgent(object):
         crow = current_state[0]
         # ccol: col of current state
         ccol = current_state[1]
-        if np.random.uniform() < self.epsilon:
-            ca = np.random.randint(self.max_actions)
-        else:
-            q = self.Q[crow][ccol]
-            # Breaking ties randomly
-            ca = np.random.choice(np.flatnonzero(q == q.max()))
 
-        action = self.action_set[ca]
+        print('state:', current_state)
+
         # Getting the coordinates of the last state
         lrow, lcol = self.states_rc[self.last_state]
         # la: integer representation of last action
         la = self.last_action
 
-        # target
+        # Update Q value
         target = reward + (self.discount)*(self.Q[crow][ccol].max())
         # Update: New Estimate = Old Estimate + StepSize[Target - Old Estimate]
         self.Q[lrow][lcol][la] += self.alpha*(target - self.Q[lrow][lcol][la])
 
-        # Updating last_state and last_action
+        # Choose action
+        # not following option
+        if self.following_option == -1:
+            print('--not following option--')
+            # epsilon greedy
+            if np.random.uniform() < self.epsilon:
+                ca = np.random.randint(self.max_actions)
+            else:
+                q = self.Q[crow][ccol]
+                # Breaking ties randomly
+                ca = np.random.choice(np.flatnonzero(q == q.max()))
+
+
+            # if chosen action is an option
+            if ca >= self.default_max_actions:
+                print('--option selected--')
+                self.following_option = ca % self.default_max_actions
+                ca = self.option_set[self.following_option][state[0]]
+
+            # primitive action
+            else:
+                action = self.action_set[ca]
+                self.last_state = self.states_rc.index(current_state)
+                self.last_action = ca
+                self.steps += 1
+                print('primitive action:', ca)
+                return self.last_action ##################
+
+        # following option
+        print('--following option--')
+        assert (self.following_option != -1)
+
+
+        ca = self.option_set[self.following_option][state[0]]
+        print('option action:', ca)
+
+        # if terminate action
+        while ca == 4: 
+            print('it is terminate action')
+            self.following_option = -1
+
+            # epsilon greedy
+            if np.random.uniform() < self.epsilon:
+                ca = np.random.randint(self.max_actions)
+            else:
+                q = self.Q[crow][ccol]
+                # Breaking ties randomly
+                ca = np.random.choice(np.flatnonzero(q == q.max()))
+
+            # if chosen action is an option
+            if ca >= self.default_max_actions:
+                print('--option selected--')
+                self.following_option = ca % self.default_max_actions
+                ca = self.option_set[self.following_option][state[0]]
+                print('state:', current_state)
+                print('option action:', ca)
+
+            # primitive action
+            else:
+                action = self.action_set[ca]
+                self.last_state = self.states_rc.index(current_state)
+                self.last_action = ca
+                self.steps += 1
+                return self.last_action #################
+
+
+        # not terminate action
+        action = self.action_set[ca]
         self.last_state = self.states_rc.index(current_state)
         self.last_action = ca
-
-        # Updating steps
         self.steps += 1
+        return self.last_action #############
 
-        return self.last_action
 
     def end(self, reward):
         """
         Arguments: reward: floating point
         Returns: Nothing
         """
+        print('====agent end====')
+
         lrow, lcol = self.states_rc[self.last_state]
         la = self.last_action
         # We know that the agent has transitioned in the terminal state
@@ -111,6 +228,7 @@ class QAgent(object):
         self.Q = np.zeros((self.max_row, self.max_col, self.max_actions))
         self.last_state, self.last_action = -1, -1
         self.steps = 0
+        self.option_set = []
 
         return
 
@@ -128,13 +246,13 @@ class QAgent(object):
             eigenoption = pickle.loads(in_message.split(":")[1])
 
             self.max_actions += 1
-            self.Q = np.zeros((self.max_row, self.max_col, self.max_actions))
 
-            # TODO: add to option set
-            
+            # add to option set
+            self.option_set.append(eigenoption)
 
         elif in_message.startswith("set terminate_action"):
             self.action_set.append(TERMINATE_ACTION)
+            self.default_max_actions = len(self.action_set)
             self.max_actions = len(self.action_set)
             self.Q = np.zeros((self.max_row, self.max_col, self.max_actions))
 
