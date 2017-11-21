@@ -93,14 +93,22 @@ class Options(object):
         indexes.sort(key=w.__getitem__)
         self.eigenvalues = np.asarray(map(w.__getitem__, indexes))
         self.eigenvectors = np.asarray(map(v.__getitem__, indexes))
-
+        shape = self.eigenvectors.shape
+        shape = (shape[0] * 2, shape[1])
+        eigenvectors = np.zeros(shape)
+        for idx in range(len(self.eigenvectors)):
+            v1 = self.eigenvectors[idx] * 1
+            v2 = self.eigenvectors[idx] * -1
+            eigenvectors[idx*2] = v1
+            eigenvectors[idx*2 + 1] = v2
+        self.eigenvectors = eigenvectors
 
 
     def learn_next_eigenoption(self, steps=100000):
 
         # learn next option
         new_option_idx = len(self.eigenoptions)
-        if new_option_idx == len(self.eigenvalues):
+        if new_option_idx == len(self.eigenvectors):
             print("All eigenoptions have already been computed")
             return
 
@@ -132,7 +140,6 @@ class Options(object):
         if len(self.eigenoptions) < 1 or idx not in range(-1, len(self.eigenoptions)):
             print "The eigenoption has not been learnt for this option yet"
             return
-        plot_utils.plot_pi(self.eigenoptions[idx], self.max_row, self.max_col, display, savename)
 
-
-
+        plot_utils.plot_pi(self.eigenoptions[idx], self.max_row,
+                           self.max_col, display, savename)

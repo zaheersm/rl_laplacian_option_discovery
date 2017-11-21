@@ -67,12 +67,13 @@ glue.cleanup()
 # Compute eigenoptions
 opt = options.Options(internal_env, internal_agent, alpha=alpha, epsilon=epsilon, discount=discount)
 
-for idx in range(4):
-    eigenoption0 = opt.learn_next_eigenoption(100000)
-
+for idx in range(200):
+    eigenoption = opt.learn_next_eigenoption(100000)
+    savename = 'option{}.txt'.format(idx)
+    np.savetxt(savename, np.array(eigenoption), fmt='%d')
     # display or save newest learned option
     savename = 'option{}.png'.format(idx)
-    opt.display_eigenoption(display=True, savename=savename, idx=idx)
+    opt.display_eigenoption(display=False, savename=savename, idx=idx)
 
 # TODO: add options incrementally to actions set
 #glue.agent_message("set eigen_option:" + pickle.dumps(eigenoption0, protocol=0))
