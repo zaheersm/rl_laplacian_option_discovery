@@ -17,6 +17,8 @@ class GridEnvironment(object):
         self.states_rc = states_rc # all possible states (r,c)
         self.max_row, self.max_col = max_row, max_col
 
+        # use exploring starts if start_state is None
+        self.start_state = None 
         self.goal_state = goal_state
 
         self.action_set = default_action_set[:]
@@ -34,8 +36,15 @@ class GridEnvironment(object):
         self.current_state = None
 
     def start(self):
-        start_state = np.random.randint(len(self.states_rc))
-        self.current_state = np.asarray([start_state])
+
+        # exploring starts
+        if self.start_state == None:
+            start_state_int = np.random.randint(len(self.states_rc))
+        # start state is specified
+        else:
+            start_state_int = self.states_rc.index(self.start_state)
+        self.current_state = np.asarray([start_state_int])
+
         # Returning a copy of the current state
         return np.copy(self.current_state)
 
@@ -87,7 +96,12 @@ class GridEnvironment(object):
         return
 
     def message(self, in_message):
+
         if in_message.startswith("set start_state"):
+            # integer representation
+            self.start_state = pickle.loads(in_message.split(":")[1])
+
+        elif in_message.startswith("set current_state"):
             self.current_state = np.asarray([int(in_message.split(":")[1])])
 
         elif in_message.startswith("set terminate_action"):

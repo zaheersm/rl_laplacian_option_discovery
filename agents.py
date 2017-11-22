@@ -22,7 +22,7 @@ class QAgent(object):
         self.default_max_actions = len(self.action_set) # will stay fixed
         self.max_actions = len(self.action_set) # can increase
 
-        self.Q = np.zeros((max_row, max_col, self.max_actions))
+        self.Q = np.zeros((max_row, max_col, self.default_max_actions))
         self.states_rc = [(r, c) for r in range(max_row)
                           for c in range(max_col)]
 
@@ -35,25 +35,27 @@ class QAgent(object):
         # -1 if not following option
         self.following_option = -1 
 
+        # if True, the agent will not update Q (will not learn)
+        self.isTest = False
+
+        # initially use uniformrandom policy for behavior policy
+        self.useEpsilonGreedy = False
+
     def start(self, state):
-        print('====agent start====')
 
         # Saving the state as last_state
         self.last_state = state[0]
         # Getting the cartesian form of the states
         row, col = self.states_rc[state[0]]
-        print('start state', (row,col))
 
         # not following option
         if self.following_option == -1:
 
-            # epsilon greedy
-            if np.random.uniform() < self.epsilon:
-                ca = np.random.randint(self.max_actions)
+            # set policy
+            if self.useEpsilonGreedy:
+                ca = self.epsilongreedy(row,col)
             else:
-                q = self.Q[row][col]
-                # Breaking ties randomly
-                ca = np.random.choice(np.flatnonzero(q == q.max()))
+                ca = self.uniformrandom()
 
             # if chosen action is an option
             if ca >= self.default_max_actions:
@@ -76,13 +78,11 @@ class QAgent(object):
         while ca == 4: 
             self.following_option = -1
 
-            # epsilon greedy
-            if np.random.uniform() < self.epsilon:
-                ca = np.random.randint(self.max_actions)
+            # set policy
+            if self.useEpsilonGreedy:
+                ca = self.epsilongreedy(row,col)
             else:
-                q = self.Q[row][col]
-                # Breaking ties randomly
-                ca = np.random.choice(np.flatnonzero(q == q.max()))
+                ca = self.uniformrandom()
 
             # if chosen action is an option
             if ca >= self.default_max_actions:
@@ -105,9 +105,7 @@ class QAgent(object):
         return self.last_action
                 
 
-    def step(self, reward, state):
-        print('====agent step====')
-        
+    def step(self, reward, state):        
 
         """
         Arguments: reward: floting point, state: integer
@@ -119,34 +117,30 @@ class QAgent(object):
         # ccol: col of current state
         ccol = current_state[1]
 
-        print('state:', current_state)
-
         # Getting the coordinates of the last state
         lrow, lcol = self.states_rc[self.last_state]
         # la: integer representation of last action
         la = self.last_action
 
         # Update Q value
-        target = reward + (self.discount)*(self.Q[crow][ccol].max())
-        # Update: New Estimate = Old Estimate + StepSize[Target - Old Estimate]
-        self.Q[lrow][lcol][la] += self.alpha*(target - self.Q[lrow][lcol][la])
+        if self.isTest == False:
+            target = reward + (self.discount)*(self.Q[crow][ccol].max())
+            # Update: New Estimate = Old Estimate + StepSize[Target - Old Estimate]
+            self.Q[lrow][lcol][la] += self.alpha*(target - self.Q[lrow][lcol][la])
 
         # Choose action
         # not following option
         if self.following_option == -1:
-            print('--not following option--')
-            # epsilon greedy
-            if np.random.uniform() < self.epsilon:
-                ca = np.random.randint(self.max_actions)
+
+            # set policy
+            if self.useEpsilonGreedy:
+                ca = self.epsilongreedy(crow,ccol)
             else:
-                q = self.Q[crow][ccol]
-                # Breaking ties randomly
-                ca = np.random.choice(np.flatnonzero(q == q.max()))
+                ca = self.uniformrandom()
 
 
             # if chosen action is an option
             if ca >= self.default_max_actions:
-                print('--option selected--')
                 self.following_option = ca % self.default_max_actions
                 ca = self.option_set[self.following_option][state[0]]
 
@@ -156,37 +150,29 @@ class QAgent(object):
                 self.last_state = self.states_rc.index(current_state)
                 self.last_action = ca
                 self.steps += 1
-                print('primitive action:', ca)
-                return self.last_action ##################
+                return self.last_action 
 
         # following option
-        print('--following option--')
         assert (self.following_option != -1)
 
 
         ca = self.option_set[self.following_option][state[0]]
-        print('option action:', ca)
 
         # if terminate action
         while ca == 4: 
-            print('it is terminate action')
             self.following_option = -1
 
-            # epsilon greedy
-            if np.random.uniform() < self.epsilon:
-                ca = np.random.randint(self.max_actions)
+             # set policy
+            if self.useEpsilonGreedy:
+                ca = self.epsilongreedy(crow,ccol)
             else:
-                q = self.Q[crow][ccol]
-                # Breaking ties randomly
-                ca = np.random.choice(np.flatnonzero(q == q.max()))
+                ca = self.uniformrandom()
 
             # if chosen action is an option
             if ca >= self.default_max_actions:
-                print('--option selected--')
                 self.following_option = ca % self.default_max_actions
                 ca = self.option_set[self.following_option][state[0]]
-                print('state:', current_state)
-                print('option action:', ca)
+
 
             # primitive action
             else:
@@ -194,7 +180,7 @@ class QAgent(object):
                 self.last_state = self.states_rc.index(current_state)
                 self.last_action = ca
                 self.steps += 1
-                return self.last_action #################
+                return self.last_action 
 
 
         # not terminate action
@@ -202,7 +188,7 @@ class QAgent(object):
         self.last_state = self.states_rc.index(current_state)
         self.last_action = ca
         self.steps += 1
-        return self.last_action #############
+        return self.last_action 
 
 
     def end(self, reward):
@@ -210,14 +196,14 @@ class QAgent(object):
         Arguments: reward: floating point
         Returns: Nothing
         """
-        print('====agent end====')
 
         lrow, lcol = self.states_rc[self.last_state]
         la = self.last_action
         # We know that the agent has transitioned in the terminal state
         # for which all action values are 0
-        target = reward + 0
-        self.Q[lrow][lcol][la] += self.alpha*(target - self.Q[lrow][lcol][la])
+        if self.isTest == False:
+            target = reward + 0
+            self.Q[lrow][lcol][la] += self.alpha*(target - self.Q[lrow][lcol][la])
         # Resetting last_state and last_action for the next episode
         self.last_state, self.last_action = -1, -1
         return
@@ -225,13 +211,26 @@ class QAgent(object):
     def cleanup(self):
         # clean up
 
-        self.Q = np.zeros((self.max_row, self.max_col, self.max_actions))
+        self.Q = np.zeros((self.max_row, self.max_col, self.default_max_actions))
         self.last_state, self.last_action = -1, -1
         self.steps = 0
-        self.option_set = []
 
         return
 
+    def epsilongreedy(self, row, col):
+
+        if np.random.uniform() < self.epsilon:
+            ca = np.random.randint(self.max_actions)
+        else:
+            q = self.Q[row][col]
+            # Breaking ties randomly
+            ca = np.random.choice(np.flatnonzero(q == q.max()))
+
+        return ca
+
+    def uniformrandom(self):
+        ca = np.random.randint(self.max_actions)
+        return ca
 
     def message(self, in_message):
         """
@@ -241,6 +240,13 @@ class QAgent(object):
         """
         if (in_message == 'ValueFunction'):
             return pickle.dumps(np.max(self.Q, axis=1), protocol=0)
+
+        elif (in_message == 'Get Q'):
+            return pickle.dumps(self.Q)
+
+        elif in_message.startswith("Set Q"):
+            imported_Q = pickle.loads(in_message[6:])
+            self.Q = imported_Q
 
         elif in_message.startswith("set eigen_option"):
             eigenoption = pickle.loads(in_message.split(":")[1])
@@ -254,7 +260,7 @@ class QAgent(object):
             self.action_set.append(TERMINATE_ACTION)
             self.default_max_actions = len(self.action_set)
             self.max_actions = len(self.action_set)
-            self.Q = np.zeros((self.max_row, self.max_col, self.max_actions))
+            self.Q = np.zeros((self.max_row, self.max_col, self.default_max_actions))
 
         elif in_message == ("get steps"):
             return str(self.steps)
@@ -276,6 +282,14 @@ class QAgent(object):
         elif in_message.startswith("get policy"):
             pi = self._policy()
             return pickle.dumps(pi, protocol=0)
+
+        elif in_message == 'TEST ON':
+            self.isTest = True
+            self.useEpsilonGreedy = True
+
+        elif in_message == 'TEST OFF':
+            self.isTest = False
+            self.useEpsilonGreedy = False
 
         else:
             print("Invalid agent message: " + in_message)

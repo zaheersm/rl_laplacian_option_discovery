@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 
 def plot_pi(pi, max_row, max_col, display=True, savename=''):
-
+    plt.figure()
     # Here we modify Terminate (0,0) to indicate termination with a dot
     # Note these actions denotes direction of (x,y) vector arrow and not (row,col)
     # Right, Left, Down, Up, Terminate
