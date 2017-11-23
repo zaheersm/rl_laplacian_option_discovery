@@ -52,8 +52,8 @@ for opt_id in range(len(opt_policies)):
             cache[(opt_id, s_id, g_id)] = (steps, ns)
 
 MAX_OPTIONS = 200
-diffusion_time = np.zeros((MAX_OPTIONS,))
-options_range = range(MAX_OPTIONS)[::-1]
+diffusion_time = np.zeros((MAX_OPTIONS + 1,))
+options_range = range(MAX_OPTIONS + 1)[::-1]
 for num_options in options_range:
     means = []
     for g_id, GOAL in enumerate(states_rc):
@@ -100,7 +100,6 @@ for num_options in options_range:
                                                         np.mean(means))
     print out
     diffusion_time[num_options] = np.mean(means)
-    if num_options == 197:
-        break
-savename = 'diffusion_time.txt'
-np.savetxt(savename, diffusion_time, fmt='%f')
+    # Saving in every iteration
+    savename = 'diffusion_time_values_0_200.txt'
+    np.savetxt(savename, diffusion_time, fmt='%f')
