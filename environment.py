@@ -28,8 +28,11 @@ class GridEnvironment(object):
         if reward_vector is None:
             # Reward is 0.0 everywhere, and 1.0 in goal state
             self.reward_vector = np.zeros((len(self.states_rc))) * 0.0
-            goal_idx = self.states_rc.index(goal_state)
-            self.reward_vector[goal_idx] = 1.0
+            try: # It is possible that there's no goal state e.g. (-1,-1)
+                goal_idx = self.states_rc.index(goal_state)
+                self.reward_vector[goal_idx] = 1.0
+            except ValueError:
+                pass
         else:
             self.reward_vector = reward_vector
 

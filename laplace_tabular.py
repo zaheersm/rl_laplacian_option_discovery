@@ -18,7 +18,7 @@ alpha = 0.1
 epsilon = 0.0
 discount = 0.9
 
-num_options = 100
+num_options = 200
 
 # TODO: Add random seed for random start state / random action selection
 # state_random_seed_arr = []
@@ -57,6 +57,7 @@ print("Computing eigenvalues")
 opt = options.Options(internal_env, internal_agent, alpha=alpha, epsilon=epsilon, discount=discount)
 
 
+
 #### Test Agent #### does not learn, and takes greedy action
 test_env = getattr(environment, env_name)(max_row, max_col, goal_state)
 test_agent = getattr(agents, agent_name)(max_row, max_col)
@@ -74,7 +75,7 @@ glue_test.agent_message('TEST ON') # disable learning and set epsilon = 0.0 if n
 results = np.zeros((num_options+1, num_episodes))
 
 current_num_options = 0
-for i in [0,2,4,8,64]:
+for i in [0,2,4,8,64,128, 200]:
 	print('Computing Agent with ' + str(i) + ' options...')
 	# add option
 	while current_num_options < i:
