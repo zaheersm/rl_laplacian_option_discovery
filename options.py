@@ -64,7 +64,7 @@ class Options(object):
             for a in range(default_max_actions):
 
                 # Take a specified action from a given start state to get next state
-                command = "set start_state:{}".format(state)
+                command = "set current_state:{}".format(state)
                 self.glue.env_message(command)
                 
                 result = self.glue.environment.step(a)
