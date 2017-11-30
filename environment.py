@@ -90,14 +90,14 @@ class BaseEnvironment(object):
                 # Going back to the integer representation
                 s = self.states_rc.index(s)
                 ns = self.states_rc.index(ns) # same state
-                reward = 0 #- 0.001 
+                reward = 0 - 0.001 
             else:
 
                  # Going back to the integer representation
                 s = self.states_rc.index(s)
                 ns = self.states_rc.index(ns) # next state
 
-                reward = self.reward_vector[ns] - self.reward_vector[s] #- 0.001
+                reward = self.reward_vector[ns] - self.reward_vector[s] - 0.001
 
             
             self.current_state[0] = ns
@@ -233,6 +233,20 @@ class RoomEnvironment(BaseEnvironment):
         BaseEnvironment.__init__(self, max_row, max_col, start_state,
                  goal_state, obstacles)
 
+
+
+class I_MazeEnvironment(BaseEnvironment):
+    def __init__(self):
+        I_maze_env = [
+            ' XXXXXXXXXXXXXG',
+            '               ',
+            'SXXXXXXXXXXXXX '
+        ]
+
+        max_row, max_col, start_state, goal_state, obstacles = parse_env(I_maze_env)
+
+        BaseEnvironment.__init__(self, max_row, max_col, start_state,
+                 goal_state, obstacles)
 
 
 

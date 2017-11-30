@@ -24,11 +24,11 @@ np.set_printoptions(precision=2)
 alpha = 0.1
 epsilon = 0.1 # 1.0
 discount = 1.0
-save_dir = './room_env_option_archive_step_penalty'
-num_options = 242
+save_dir = './I_maze_env_option_archive'
+num_options = 200 # 200, 242, 90
 
 # Specify name of env and agent
-env_name = "RoomEnvironment"
+env_name = "I_MazeEnvironment"
 agent_name = "QAgent" 
 
 external_env = getattr(environment, env_name)()

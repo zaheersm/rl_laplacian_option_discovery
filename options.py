@@ -104,6 +104,8 @@ class Options(object):
             eigenvectors[idx*2 + 1] = v2
         self.eigenvectors = eigenvectors
 
+        print(self.eigenvectors.shape)
+        print(self.eigenvalues.shape)
 
     def learn_next_eigenoption(self, steps=100000):
 
