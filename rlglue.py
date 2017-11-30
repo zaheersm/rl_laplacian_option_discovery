@@ -92,6 +92,9 @@ class RLGlue(object):
     def get_num_episodes(self):
         return self.num_episodes
 
+    def get_total_reward(self):
+        return self.total_reward
+
     def agent_message(self, message):
         """
         Arguments
