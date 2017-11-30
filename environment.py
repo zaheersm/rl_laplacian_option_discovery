@@ -24,6 +24,8 @@ class BaseEnvironment(object):
         self.default_max_actions = len(self.action_set) # will stay fixed
         self.max_actions = len(self.action_set) # can increase
 
+        self.obstacle_vector = obstacle_vector
+
         if reward_vector is None:
             # Reward is 0.0 everywhere, and 1.0 in goal state
             self.reward_vector = np.zeros((len(self.states_rc))) * 0.0
@@ -32,6 +34,11 @@ class BaseEnvironment(object):
                 self.reward_vector[goal_idx] = 1.0
             except ValueError:
                 pass
+
+            for obs_state in obstacle_vector:
+                obs_idx = self.states_rc.index(obs_state)
+                self.reward_vector[obs_idx] = float('-inf')
+
         else:
             self.reward_vector = reward_vector
 
@@ -41,7 +48,9 @@ class BaseEnvironment(object):
 
         # exploring starts
         if self.start_state == (-1,-1):
-            start_state_int = np.random.randint(len(self.states_rc))
+            valid_state_idx = [idx for idx, state in enumerate(self.states_rc) if state not in self.obstacle_vector]
+            start_state_int = np.random.choice(valid_state_idx)
+            #start_state_int = np.random.randint(len(self.states_rc))
         # start state is specified
         else:
             start_state_int = self.states_rc.index(self.start_state)
@@ -73,11 +82,24 @@ class BaseEnvironment(object):
             nc = min(self.max_col - 1, max(0, s[1] + action[1]))
             ns = (nr, nc) 
 
-            # Going back to the integer representation
-            s = self.states_rc.index(s)
-            ns = self.states_rc.index(ns) # next state
 
-            reward = self.reward_vector[ns] - self.reward_vector[s]
+            # if s or ns is obstacle, don't move
+            if s in self.obstacle_vector or ns in self.obstacle_vector:
+                ns = s
+
+                # Going back to the integer representation
+                s = self.states_rc.index(s)
+                ns = self.states_rc.index(ns) # same state
+                reward = 0 #- 0.001 
+            else:
+
+                 # Going back to the integer representation
+                s = self.states_rc.index(s)
+                ns = self.states_rc.index(ns) # next state
+
+                reward = self.reward_vector[ns] - self.reward_vector[s] #- 0.001
+
+            
             self.current_state[0] = ns
 
         # check terminal
@@ -152,6 +174,24 @@ class BaseEnvironment(object):
     def get_dim(self):
         return self.max_row, self.max_col
 
+# returns relevant environment information
+def parse_env(env_grid):
+    max_row = len(env_grid)
+    max_col = len(env_grid[0])
+    obstacles = []
+    start_state = (-1,-1)
+    goal_state = (-1,-1)
+    for r in range(max_row):
+        for c in range(max_col):
+            if env_grid[r][c] == 'X':
+                obstacles.append((r,c))
+            elif env_grid[r][c] == 'S':
+                start_state = (r,c)
+            elif env_grid[r][c] == 'G':
+                goal_state = (r,c)
+
+    return max_row, max_col, start_state, goal_state, obstacles
+
 class GridEnvironment(BaseEnvironment):
     def __init__(self):
         grid_env = [
@@ -171,23 +211,30 @@ class GridEnvironment(BaseEnvironment):
         BaseEnvironment.__init__(self, max_row, max_col, start_state,
                  goal_state, obstacles)
 
-# returns relevant environment information
-def parse_env(env_grid):
-    max_row = len(env_grid)
-    max_col = len(env_grid[0])
-    obstacles = []
-    start_state = (-1,-1)
-    goal_state = (-1,-1)
-    for r in range(max_row):
-        for c in range(max_col):
-            if env_grid[r][c] == 'X':
-                obstacles.append((r,c))
-            elif env_grid[r][c] == 'S':
-                start_state = (r,c)
-            elif env_grid[r][c] == 'G':
-                goal_state = (r,c)
 
-    return max_row, max_col, start_state, goal_state, obstacles
+class RoomEnvironment(BaseEnvironment):
+    def __init__(self):
+        room_env = [
+            '     X    G',
+            '     X     ',
+            '           ',
+            '     X     ',
+            '     X     ',
+            'X XXXX     ',
+            '     XXX XX',
+            '     X     ',
+            '     X     ',
+            '           ',
+            'S    X     '
+        ]
+
+        max_row, max_col, start_state, goal_state, obstacles = parse_env(room_env)
+
+        BaseEnvironment.__init__(self, max_row, max_col, start_state,
+                 goal_state, obstacles)
+
+
+
 
 
 
