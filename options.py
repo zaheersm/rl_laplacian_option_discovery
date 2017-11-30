@@ -13,8 +13,9 @@ class Options(object):
         # currently internal_env/agent is just a copy of external_env/agent
         self.glue = rlglue.RLGlue(internal_env, internal_agent)
 
-        # set "no goal"
+        # set "no goal" and "no start"
         self.glue.env_message("set no_goal")
+        self.glue.env_message("set start_state:"+pickle.dumps((-1,-1)))
 
         # add 'terminate' action
         self.glue.env_message("set terminate_action")
@@ -115,7 +116,7 @@ class Options(object):
         # set reward vector
         command = "set eigen_purpose:" + pickle.dumps(self.eigenvectors[new_option_idx], protocol=0)
         self.glue.env_message(command)
-        plot_utils.print_eigen(self.eigenvectors[new_option_idx])
+        plot_utils.print_eigen(self.eigenvectors[new_option_idx], self.max_row, self.max_col)
         # Learn policy
         while steps >= 0:
             is_terminal = self.glue.episode(steps)
