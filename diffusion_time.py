@@ -21,7 +21,7 @@ def load_option_policies(num_options=4):
 
 def simulate_opt(opt, states_rc, start_state, goal_state):
     env = environment.GridEnvironment(max_row, max_col, (-1, -1))
-    env.set_start_state(start_state)
+    env.set_start_state(states_rc[start_state])
     env.start()
     current_state = start_state
     cr, cc = states_rc[current_state]
