@@ -10,43 +10,22 @@ import options
 
 np.set_printoptions(precision=2)
 
-# Experiment parameter
-num_episodes = 100
-alpha = 0.1
-epsilon = 0.1
-discount = 1.0
+explore_env = environment.GridEnvironment(max_row=10, max_col=10,
+                                          goal_state=(0,9))
+explore_env.set_start_state((9,0))
+explore_agent = agents.OptionExploreQAgent(max_row=10, max_col=10)
+explore_agent.set_alpha(0.1)
+explore_agent.set_discount(0.9)
+explore_glue = rlglue.RLGlue(explore_env, explore_agent)
 
-# TODO: Add random seed for random start state / random action selection
-# state_random_seed_arr = []
-# for i in range(num_episodes):
-# 	random_seed_arr.append(np.random.randint(1000))
-
-
-
-# Set up environment
-max_row = 10
-max_col = 10
-obstacles = [] # TODO: handle obstacles
-goal_state = (0,9)
-
-# Specify name of env and agent
-env_name = "GridEnvironment"
-agent_name = "QAgent" 
-
-external_env = getattr(environment, env_name)(max_row, max_col, goal_state)
-external_agent = getattr(agents, agent_name)(max_row, max_col)
-internal_env = copy.copy(external_env)
-internal_agent = copy.copy(external_agent)
-
-
-# Compute eigenoptions
-opt = options.Options(internal_env, internal_agent, alpha=alpha, epsilon=epsilon, discount=discount)
+# Option object would learn eigen-options for the enviornment
+opt = options.Options(alpha=0.1, epsilon=1.0, discount=0.9)
 
 for idx in range(200):
-	print("==== processing options: "+str(idx) + " ====")
+    print("==== learning option: "+str(idx) + " ====")
     eigenoption = opt.learn_next_eigenoption(100000)
-    savename = 'optimal_option_archive/option{}.txt'.format(idx)
+    savename = 'option_archive/option{}.txt'.format(idx)
     np.savetxt(savename, np.array(eigenoption), fmt='%d')
     # display or save newest learned option
-    savename = 'optimal_option_archive/option{}.png'.format(idx)
+    savename = 'option_archive/option{}.png'.format(idx)
     opt.display_eigenoption(display=False, savename=savename, idx=idx)

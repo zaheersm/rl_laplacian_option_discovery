@@ -101,5 +101,5 @@ for num_options in options_range:
     print out
     diffusion_time[num_options] = np.mean(means)
     # Saving in every iteration
-    savename = 'diffusion_time_values_0_200.txt'
+    savename = 'data_files/diffusion_time_values_0_200.txt'
     np.savetxt(savename, diffusion_time, fmt='%f')

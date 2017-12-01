@@ -10,8 +10,8 @@ TERMINATE_ACTION = (0,0)
 
 class GridEnvironment(object):
 
-    def __init__(self, max_row, max_col,
-                 goal_state, obstacle_vector = None, reward_vector = None):
+    def __init__(self, max_row=10, max_col=10, goal_state=(0,0),
+                 obstacle_vector = None, reward_vector = None):
 
         states_rc = [(r, c) for r in range(max_row) for c in range(max_col)]
         self.states_rc = states_rc # all possible states (r,c)
@@ -98,53 +98,25 @@ class GridEnvironment(object):
         self.current_state = None
         return
 
-    def message(self, in_message):
+    # Getter and Setter functions
+    def set_start_state(self, start_state):
+        self.start_state = start_state
 
-        if in_message.startswith("set start_state"):
-            # integer representation
-            self.start_state = pickle.loads(in_message.split(":")[1])
+    def set_goal_state(self, goal_state):
+        self.goal_state = goal_state
 
-        elif in_message.startswith("set current_state"):
-            self.current_state = np.asarray([int(in_message.split(":")[1])])
+    def add_terminate_action(self):
+        self.action_set.append(TERMINATE_ACTION)
+        self.max_actions = len(self.action_set)
 
-        elif in_message.startswith("set terminate_action"):
-            self.action_set.append(TERMINATE_ACTION)
-            self.max_actions = len(self.action_set)
+    def get_grid_dimension(self):
+        return self.max_row, self.max_col
 
-        elif in_message.startswith("set no_goal"):
-            self.goal_state = (-1, -1)
+    def get_default_max_actions(self):
+        return self.default_max_actions
 
-        elif in_message.startswith("set eigen_option"):
-            eigenoption = pickle.loads(in_message.split(":")[1])
-            eigenoption_actions = np.asarray([default_action_set[i] for i in eigenoption])
-            self.action_set.append(eigenoption_actions)
-            self.max_actions = len(self.action_set)
+    def set_current_state(self, current_state):
+        self.current_state = np.asarray([current_state])
 
-        elif in_message.startswith("set dim"):
-            dims = in_message.split(":")[1].split(",")
-            max_row, max_col = int(dims[0]), int(dims[1])
-            states_rc = [(r, c) for r in range(max_row)
-                         for c in range(max_col)]
-            self.max_row, self.max_col = max_row, max_col
-            self.states_rc = states_rc
-
-        elif in_message.startswith("set eigen_purpose"):
-            # TODO: pickle fails for eigenvectors which has 1e-10 format
-            # self.reward_vector = pickle.loads(in_message.split(":")[1])
-            # handling manually
-            self.reward_vector = pickle.loads(in_message[18:])
-
-        elif in_message.startswith("get max_row"):
-            return self.max_row
-
-        elif in_message.startswith("get max_col"):
-            return self.max_col
-
-        elif in_message.startswith("get default_max_actions"):
-            return self.default_max_actions
-
-        elif in_message.startswith("get max_actions"):
-            return self.max_actions
-        else:
-            print("Invalid env message: " + in_message)
-            exit()
+    def set_eigen_purpose(self, eigen_purpose):
+        self.reward_vector = eigen_purpose
