@@ -45,7 +45,7 @@ class GridEnvironment(object):
             start_state_int = np.random.randint(len(self.states_rc))
         # start state is specified
         else:
-            start_state_int = self.states_rc.index(self.start_state)
+            start_state_int = self.start_state
         self.current_state = np.asarray([start_state_int])
 
         # Returning a copy of the current state

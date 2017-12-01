@@ -19,9 +19,10 @@ def load_option_policies(num_options=4):
         policies.append(opt)
     return policies
 
-def simulate_opt(opt, start_state, goal_state):
+def simulate_opt(opt, states_rc, start_state, goal_state):
     env = environment.GridEnvironment(max_row, max_col, (-1, -1))
-    env.message("set current_state:" + str(start_state))
+    env.set_start_state(start_state)
+    env.start()
     current_state = start_state
     cr, cc = states_rc[current_state]
     action = int(opt[cr][cc])
@@ -48,7 +49,8 @@ cache = {}
 for opt_id in range(len(opt_policies)):
     for g_id in range(len(states_rc)):
         for s_id in range(len(states_rc)):
-            steps, ns = simulate_opt(opt_policies[opt_id], s_id, g_id)
+            steps, ns = simulate_opt(opt_policies[opt_id], states_rc,
+                                     s_id, g_id)
             cache[(opt_id, s_id, g_id)] = (steps, ns)
 
 MAX_OPTIONS = 200
@@ -71,7 +73,7 @@ for num_options in options_range:
                 va = 0
                 p = 1./(len(default_action_set) + num_options)
                 for action in range(len(default_action_set)):
-                    env.message("set current_state:" + str(s_id))
+                    env.set_current_state(s_id)
                     result = env.step(action)
                     ns = states_rc[result["state"][0]]
                     nr, nc = ns[0], ns[1]
