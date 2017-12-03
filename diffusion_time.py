@@ -19,9 +19,11 @@ def load_option_policies(num_options=4):
         policies.append(opt)
     return policies
 
-def simulate_opt(opt, start_state, goal_state):
-    env = environment.GridEnvironment(max_row, max_col, (-1, -1))
-    env.message("set current_state:" + str(start_state))
+def simulate_opt(opt, states_rc, start_state, goal_state):
+    env = environment.GridEnvironment()
+    env.set_start_state(states_rc[start_state])
+    env.set_goal_state((-1, -1))
+    env.start()
     current_state = start_state
     cr, cc = states_rc[current_state]
     action = int(opt[cr][cc])
@@ -48,7 +50,8 @@ cache = {}
 for opt_id in range(len(opt_policies)):
     for g_id in range(len(states_rc)):
         for s_id in range(len(states_rc)):
-            steps, ns = simulate_opt(opt_policies[opt_id], s_id, g_id)
+            steps, ns = simulate_opt(opt_policies[opt_id], states_rc,
+                                     s_id, g_id)
             cache[(opt_id, s_id, g_id)] = (steps, ns)
 
 MAX_OPTIONS = 200
@@ -60,7 +63,8 @@ for num_options in options_range:
         # print g_id
         V = np.zeros((max_row, max_col))
         tolerance = 0.01
-        env = environment.GridEnvironment(max_row, max_col,  (-1, -1))
+        env = environment.GridEnvironment()
+        env.set_goal_state((-1,-1))
         delta = np.inf
         while delta > tolerance:
             delta = 0
@@ -71,7 +75,7 @@ for num_options in options_range:
                 va = 0
                 p = 1./(len(default_action_set) + num_options)
                 for action in range(len(default_action_set)):
-                    env.message("set current_state:" + str(s_id))
+                    env.set_current_state(s_id)
                     result = env.step(action)
                     ns = states_rc[result["state"][0]]
                     nr, nc = ns[0], ns[1]
@@ -101,5 +105,5 @@ for num_options in options_range:
     print out
     diffusion_time[num_options] = np.mean(means)
     # Saving in every iteration
-    savename = 'diffusion_time_values_0_200.txt'
+    savename = 'data_files/diffusion_time_values_0_200.txt'
     np.savetxt(savename, diffusion_time, fmt='%f')
