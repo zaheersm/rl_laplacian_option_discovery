@@ -20,38 +20,31 @@ def createFolder(directory):
 np.set_printoptions(precision=2)
 
 
-# Experiment parameter
-alpha = 0.1
-epsilon = 0.1 # 1.0
-discount = 1.0
-save_dir = './I_maze_env_option_archive'
-num_options = 200 # 200, 242, 90
+save_dir = './grid_env_test'
+num_options = 200
 
-# Specify name of env and agent
-env_name = "I_MazeEnvironment"
-agent_name = "QAgent" 
+explore_env = environment.GridEnvironment()
 
-external_env = getattr(environment, env_name)()
+max_row, max_col = explore_env.get_grid_dimension() # get dimension of the environment
+explore_agent = agents.OptionExploreQAgent(max_row=max_row, max_col=max_col)
 
-max_row, max_col = external_env.get_dim()
-external_agent = getattr(agents, agent_name)(max_row, max_col)
+explore_agent.set_alpha(0.1)
+explore_agent.set_discount(0.9)
+explore_glue = rlglue.RLGlue(explore_env, explore_agent)
 
-
-internal_env = copy.copy(external_env)
-internal_agent = copy.copy(external_agent)
+# Option object would learn eigen-options for the enviornment
+opt = options.Options(alpha=0.1, epsilon=1.0, discount=0.9)
 
 
 createFolder(save_dir)
-# Compute eigenoptions
-opt = options.Options(internal_env, internal_agent, alpha=alpha, epsilon=epsilon, discount=discount)
 
 for idx in range(num_options):
-    print("==== processing options: "+str(idx) + " ====")
+    print("==== learning option: "+str(idx) + " ====")
     eigenoption = opt.learn_next_eigenoption(100000)
-    savename = save_dir + '/option{}.txt'.format(idx)
+    savename = save_dir+'/option{}.txt'.format(idx)
     np.savetxt(savename, np.array(eigenoption), fmt='%d')
     # display or save newest learned option
-    savename = save_dir + '/option{}.png'.format(idx)
+    savename = save_dir+'/option{}.png'.format(idx)
     opt.display_eigenoption(display=False, savename=savename, idx=idx)
 
 
