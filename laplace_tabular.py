@@ -29,7 +29,7 @@ reward_agent.set_discount(0.9)
 reward_glue = rlglue.RLGlue(reward_env, reward_agent)
 
 # Option object would learn eigen-options for the enviornment
-opt_env = environment.RoomEnvironment()
+opt_env = environment.GridEnvironment()
 opt = options.Options(opt_env, alpha=0.1, epsilon=1.0, discount=0.9)
 
 # Experiment
