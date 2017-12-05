@@ -118,7 +118,7 @@ class BaseEnvironment(object):
 
                 # Going back to the integer representation
                 s = self.states_rc.index(s)
-                ns = self.states_rc.index(s) # same state
+                ns = s #self.states_rc.index(ns) # same state
                 reward = 0 #- 0.001 # small step penalty
             else:
 

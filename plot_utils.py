@@ -33,7 +33,7 @@ def plot_pi(pi, max_row, max_col, display=True, savename=''):
         plt.savefig(savename)
     if display:
         plt.show()
-
+    plt.close()
     
 def pprint_pi(pi, max_row, max_col):
     action_set = ['R', 'L', 'D', 'U', 'T']

@@ -29,15 +29,16 @@ reward_agent.set_discount(0.9)
 reward_glue = rlglue.RLGlue(reward_env, reward_agent)
 
 # Option object would learn eigen-options for the enviornment
-opt = options.Options(alpha=0.1, epsilon=1.0, discount=0.9)
+opt_env = environment.RoomEnvironment()
+opt = options.Options(opt_env, alpha=0.1, epsilon=1.0, discount=0.9)
 
 # Experiment
 np.set_printoptions(precision=2)
 
 # Experiment parameter
-num_runs = 50
-num_episodes = 100
-num_options = 200
+num_runs = 100
+num_episodes = 500
+num_options = 242
 
 # Starting from the agent with primitive actions, we incrementally add options
 # in explore_agent
@@ -52,8 +53,12 @@ for i in [0,2,4,8,64,128, 200]:
         # display or save newest learned option
 	# opt.display_eigenoption(display=False,
         #                        savename='option'+str(i)+'.png', idx=i-1)
-        explore_agent.add_eigenoption(eigenoption)
         current_num_options += 1
+        # Not adding options which terminate in all states
+        if np.all(eigenoption == 4):
+            #print "Not adding {}".format(current_num_options - 1)
+            continue
+        explore_agent.add_eigenoption(eigenoption)
     cum_reward = np.zeros(num_episodes)
     for run in range(num_runs):
         for ep in range(num_episodes):

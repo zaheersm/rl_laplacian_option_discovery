@@ -8,11 +8,10 @@ import plot_utils
 
 class Options(object):
 
-    def __init__(self, alpha=0.1, epsilon=1.0, discount=0.1):
+    def __init__(self, env, alpha=0.1, epsilon=1.0, discount=0.1):
 
         # Configuring Environment
-        self.env = environment.GridEnvironment()
-
+        self.env = env
         self.env.set_goal_state((-1, -1)) # (-1, -1) implies no goal_state
         self.env.set_start_state((-1, -1)) # no start_state
         self.env.add_terminate_action()
@@ -29,7 +28,7 @@ class Options(object):
 
         self.eigenvectors = None
         self.eigenoptions = []
-
+        self.option_idx = 0
         # compute eigen
         self.compute_eigen()
 
@@ -93,14 +92,12 @@ class Options(object):
     def learn_next_eigenoption(self, steps=100000):
 
         # learn next option
-        new_option_idx = len(self.eigenoptions)
-        if new_option_idx == len(self.eigenvectors):
+        if self.option_idx == len(self.eigenvectors):
             print("All eigenoptions have already been computed")
             return
-
+        #print self.eigenvectors[self.option_idx]
         # set reward vector
-        self.env.set_eigen_purpose(self.eigenvectors[new_option_idx])
-        #plot_utils.print_eigen(self.eigenvectors[new_option_idx])
+        self.env.set_eigen_purpose(self.eigenvectors[self.option_idx])
 
         # Learn policy
         while steps >= 0:
@@ -113,6 +110,7 @@ class Options(object):
 
         eigenoption = self.agent.get_policy()
         self.eigenoptions.append(eigenoption)
+        self.option_idx += 1
         self.glue.cleanup() # reset Q(S,A) and reward vector
 
         # return newly learned policy
