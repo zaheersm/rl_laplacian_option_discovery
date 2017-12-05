@@ -38,7 +38,7 @@ np.set_printoptions(precision=2)
 # Experiment parameter
 num_runs = 100
 num_episodes = 500
-num_options = 242
+num_options = 200
 
 # Starting from the agent with primitive actions, we incrementally add options
 # in explore_agent
