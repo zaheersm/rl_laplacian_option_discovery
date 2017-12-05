@@ -20,8 +20,10 @@ def load_option_policies(num_options=4):
     return policies
 
 def simulate_opt(opt, states_rc, start_state, goal_state):
-    env = environment.GridEnvironment(max_row, max_col, (-1, -1))
+
+    env = environment.GridEnvironment()
     env.set_start_state(states_rc[start_state])
+    env.set_goal_state((-1, -1))
     env.start()
     current_state = start_state
     cr, cc = states_rc[current_state]
@@ -62,7 +64,8 @@ for num_options in options_range:
         # print g_id
         V = np.zeros((max_row, max_col))
         tolerance = 0.01
-        env = environment.GridEnvironment(max_row, max_col,  (-1, -1))
+        env = environment.GridEnvironment()
+        env.set_goal_state((-1,-1))
         delta = np.inf
         while delta > tolerance:
             delta = 0
